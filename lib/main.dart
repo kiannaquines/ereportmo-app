@@ -24,6 +24,11 @@ class EReportMoApp extends StatelessWidget {
         onSurface: Colors.black87, // Card text
         error: Colors.red.shade800, // Validation errors
       ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: Colors.black87,
+        actionTextColor: Colors.white,
+        contentTextStyle: TextStyle(color: Colors.white),
+      ),
       scaffoldBackgroundColor: Colors.grey.shade100,
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -43,6 +48,12 @@ class EReportMoApp extends StatelessWidget {
         bodyLarge: GoogleFonts.oswald(textStyle: textTheme.bodyLarge),
         bodySmall: GoogleFonts.oswald(textStyle: textTheme.bodySmall),
         labelLarge: GoogleFonts.oswald(textStyle: textTheme.labelLarge),
+        labelMedium: GoogleFonts.oswald(textStyle: textTheme.labelMedium),
+        labelSmall: GoogleFonts.oswald(textStyle: textTheme.labelSmall),
+        displayLarge: GoogleFonts.oswald(textStyle: textTheme.displayLarge),
+        displayMedium: GoogleFonts.oswald(textStyle: textTheme.displayMedium),
+        displaySmall: GoogleFonts.oswald(textStyle: textTheme.displaySmall),
+        headlineLarge: GoogleFonts.oswald(textStyle: textTheme.headlineLarge),
       ),
     );
     return MaterialApp(
