@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:drop_down_list/model/selected_list_item.dart';
 import 'package:ereportmo_app/constants.dart';
 import 'package:ereportmo_app/login.dart';
-import 'package:ereportmo_app/models/office.dart';
 import 'package:flutter/material.dart';
 import 'package:ereportmo_app/includes/appbar.dart';
 import 'package:drop_down_list/drop_down_list.dart';
@@ -69,7 +68,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         barangay.isEmpty ||
         municipality.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields')),
+        SnackBar(
+          content: Text(
+            'Please fill in all fields',
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
+          ),
+        ),
       );
       setState(() {
         isProcessing = false;
@@ -78,9 +88,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Passwords do not match',
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
+          ),
+        ),
+      );
       setState(() {
         isProcessing = false;
       });
@@ -89,8 +110,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (password.length < 8) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password must be at least 8 characters long'),
+        SnackBar(
+          content: Text(
+            'Password must be at least 8 characters long',
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
+          ),
         ),
       );
       setState(() {
@@ -100,9 +130,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (!email.contains('@')) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invalid email address')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Invalid email address',
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
+          ),
+        ),
+      );
       setState(() {
         isProcessing = false;
       });
@@ -129,9 +170,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String message = responseMessage['message'] ?? 'Registration failed';
 
     if (response.statusCode == 201) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
+          ),
+        ),
+      );
       //   clear input fields
       _passwordController.clear();
       _confirmPasswordController.clear();
@@ -146,16 +198,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       });
     } else if (response.statusCode == 422) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
+          ),
+        ),
+      );
       setState(() {
         isProcessing = false;
       });
       return;
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Something went wrong please try again.')),
+        SnackBar(
+          content: Text(
+            'Something went wrong please try again.',
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
+          ),
+        ),
       );
       setState(() {
         isProcessing = false;
@@ -232,6 +306,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: InputDecoration(
                           labelText: 'Full Name',
                           prefixIcon: Icon(Icons.person_outlined),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide(color: Colors.grey.shade300),
@@ -251,6 +329,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: InputDecoration(
                           labelText: 'Municipality',
                           prefixIcon: Icon(Icons.location_on_outlined),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide(color: Colors.grey.shade300),
@@ -268,6 +350,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: InputDecoration(
                           labelText: 'Barangay',
                           prefixIcon: Icon(Icons.location_on_outlined),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide(color: Colors.grey.shade300),
@@ -313,6 +399,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           labelText: 'Email',
                           hintText: 'Enter your email',
                           prefixIcon: Icon(Icons.email_outlined),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide(color: Colors.grey.shade300),
@@ -332,6 +422,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           labelText: 'Password',
                           hintText: 'Enter your password',
                           prefixIcon: Icon(Icons.lock_outlined),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide(color: Colors.grey.shade300),
@@ -351,6 +445,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           labelText: 'Confirm Password',
                           hintText: 'Enter your password again',
                           prefixIcon: Icon(Icons.lock_outlined),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5),
                             borderSide: BorderSide(color: Colors.grey.shade300),

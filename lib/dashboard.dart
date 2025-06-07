@@ -32,7 +32,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(50),
@@ -79,7 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         _buildCard(
                           image: 'images/report-list.png',
-                          label: 'Report List',
+                          label: 'History',
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -148,19 +147,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder:
           (context) => AlertDialog(
             backgroundColor: Colors.white,
-            title: const Text('Logout'),
-            content: const Text('Are you sure you want to logout?'),
+            title: Text(
+              'Logout',
+              style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+            ),
+            content: Text(
+              'Are you sure you want to logout?',
+              style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context), // Dismiss dialog
-                child: const Text('Cancel'),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.openSans().fontFamily,
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: () async {
                   Navigator.pop(context); // Close dialog
                   await logOutData();
                 },
-                child: const Text('Logout'),
+                child: Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.openSans().fontFamily,
+                  ),
+                ),
               ),
             ],
           ),
@@ -200,9 +215,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 12),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
+                    fontFamily: GoogleFonts.openSans().fontFamily,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -226,9 +242,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
     if (response.statusCode == 200) {
       await removeLoginData();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Logged out successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Logged out successfully',
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+        ),
+      );
       Timer(const Duration(seconds: 3), () {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const LoginScreen()),

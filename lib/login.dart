@@ -95,7 +95,10 @@ class _LoginScreenState extends State<LoginScreen> {
       //   show snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(
+            message,
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
           action: SnackBarAction(
             label: 'Close',
             onPressed: () {
@@ -122,7 +125,10 @@ class _LoginScreenState extends State<LoginScreen> {
     } else if (response.statusCode == 401) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(
+            message,
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
           action: SnackBarAction(
             label: 'Close',
             onPressed: () {
@@ -135,16 +141,24 @@ class _LoginScreenState extends State<LoginScreen> {
         isProcessing = false;
       });
     } else if (response.statusCode == 422) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+        ),
+      );
       setState(() {
         isProcessing = false;
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(
+            message,
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
           action: SnackBarAction(
             label: 'Close',
             onPressed: () {
@@ -225,6 +239,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             labelText: 'Email',
                             prefixIcon: Icon(Icons.email_outlined),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              borderSide: BorderSide(
+                                color:
+                                    Colors
+                                        .grey
+                                        .shade200, // Border color when NOT focused
+                                width: 1.5,
+                              ),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(5),
                               borderSide: BorderSide(
@@ -245,6 +269,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             labelText: 'Password',
                             prefixIcon: Icon(Icons.lock_outlined),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              borderSide: BorderSide(
+                                color:
+                                    Colors
+                                        .grey
+                                        .shade200, // Border color when NOT focused
+                                width: 1.5,
+                              ),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(5),
                               borderSide: BorderSide(
