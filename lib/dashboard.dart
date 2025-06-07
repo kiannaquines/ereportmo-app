@@ -266,6 +266,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
           (route) => false,
         );
       });
+    } else if (response.statusCode == 401) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Something went wrong please try again.',
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
+          ),
+        ),
+      );
     }
   }
 }
