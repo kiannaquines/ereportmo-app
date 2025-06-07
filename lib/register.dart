@@ -287,7 +287,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 margin: const EdgeInsets.only(bottom: 24),
                 child: Padding(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -378,7 +378,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 margin: const EdgeInsets.only(bottom: 24),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
