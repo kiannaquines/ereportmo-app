@@ -17,6 +17,7 @@ class EReportModeAppBar extends StatefulWidget {
 class _EReportModeAppBarState extends State<EReportModeAppBar> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return AppBar(
       leading:
           widget.withBackButton
@@ -35,7 +36,7 @@ class _EReportModeAppBarState extends State<EReportModeAppBar> {
       ),
       automaticallyImplyLeading: false,
       centerTitle: true,
-      backgroundColor: Colors.red,
+      backgroundColor: theme.colorScheme.primary,
       foregroundColor: Colors.white,
     );
   }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drop_down_list/model/selected_list_item.dart';
@@ -26,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       TextEditingController();
   final TextEditingController _barangayController = TextEditingController();
   final TextEditingController _municipalityController = TextEditingController();
-
+  bool isProcessing = false;
   final List<String> _listOfMunicipalities = [
     'Alamada',
     'Aleosan',
@@ -49,6 +50,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   ];
 
   void _handleRegister() async {
+    setState(() {
+      isProcessing = true;
+    });
     final name = _nameController.text;
     final email = _emailController.text;
     final password = _passwordController.text;
@@ -66,6 +70,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
       );
+      setState(() {
+        isProcessing = false;
+      });
       return;
     }
 
@@ -73,6 +80,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      setState(() {
+        isProcessing = false;
+      });
       return;
     }
 
@@ -82,6 +92,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           content: Text('Password must be at least 8 characters long'),
         ),
       );
+      setState(() {
+        isProcessing = false;
+      });
       return;
     }
 
@@ -89,6 +102,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Invalid email address')));
+      setState(() {
+        isProcessing = false;
+      });
       return;
     }
 
@@ -122,14 +138,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _nameController.clear();
       _barangayController.clear();
       _municipalityController.clear();
+
+      Timer(const Duration(seconds: 3), () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      });
     } else if (response.statusCode == 422) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(message)));
+      setState(() {
+        isProcessing = false;
+      });
+      return;
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Something went wrong please try again.')),
       );
+      setState(() {
+        isProcessing = false;
+      });
+      return;
     }
   }
 
@@ -148,15 +178,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 20),
               Text(
                 widget.title,
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -166,9 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: Colors.grey[700],
                 ),
               ),
-              const SizedBox(height: 32),
-              const Text("Personal Information"),
-              const SizedBox(height: 16),
+              const SizedBox(height: 36),
               // Name field
               Card(
                 color: Colors.white,
@@ -194,10 +224,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       TextFormField(
                         controller: _nameController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Full Name',
-                          hintText: 'Enter your full name',
                           prefixIcon: Icon(Icons.person_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 16,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -206,23 +243,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _municipalityController,
                         readOnly: true,
                         onTap: onMunicipalityTextFieldTap,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Municipality',
-                          hintText: 'Select your municipality',
                           prefixIcon: Icon(Icons.location_on_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 16,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
 
                       TextFormField(
                         controller: _barangayController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Barangay',
-                          hintText: 'Enter your barangay',
                           prefixIcon: Icon(Icons.location_on_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 16,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
                     ],
                   ),
                 ),
@@ -253,10 +304,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Email',
                           hintText: 'Enter your email',
                           prefixIcon: Icon(Icons.email_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 16,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -264,10 +323,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Password',
                           hintText: 'Enter your password',
                           prefixIcon: Icon(Icons.lock_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 16,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -275,13 +342,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: true,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Confirm Password',
                           hintText: 'Enter your password again',
                           prefixIcon: Icon(Icons.lock_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 16,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
                     ],
                   ),
                 ),
@@ -293,8 +368,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ElevatedButton(
                   onPressed: _handleRegister,
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    backgroundColor: theme.colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -315,7 +390,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Already have an account?",
+                    "Have an account?",
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       color: Colors.grey,
@@ -326,8 +401,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder:
-                              (context) => const LoginScreen(title: 'Login'),
+                          builder: (context) => const LoginScreen(),
                         ),
                       );
                     },
@@ -335,7 +409,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       foregroundColor: theme.colorScheme.primary,
                     ),
                     child: Text(
-                      "Login here",
+                      "Click here",
                       style: TextStyle(color: theme.colorScheme.primary),
                     ),
                   ),
