@@ -6,6 +6,7 @@ import 'package:ereportmo_app/register.dart';
 import 'package:flutter/material.dart';
 import 'package:ereportmo_app/includes/appbar.dart';
 import 'package:ereportmo_app/includes/ereportmo_shared.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 
@@ -180,16 +181,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 20),
                 Text(
                   widget.title,
-                  style: theme.textTheme.headlineMedium?.copyWith(
+                  style: TextStyle(
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,
+                    fontFamily: GoogleFonts.openSans().fontFamily,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Login to your account to continue.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: TextStyle(
+                    fontSize: 16,
                     color: Colors.grey[700],
+                    fontFamily: GoogleFonts.openSans().fontFamily,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -237,13 +242,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _passwordController,
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Password is required';
-                            }
-                            return null;
-                          },
                           decoration: InputDecoration(
                             labelText: 'Password',
                             prefixIcon: Icon(Icons.lock_outlined),
@@ -302,11 +300,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       "Don't have an account?",
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey,
+                        color: Colors.grey.shade700,
+                        fontFamily: GoogleFonts.openSans().fontFamily,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -323,7 +322,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Text(
                         "Click here",
-                        style: TextStyle(color: theme.colorScheme.primary),
+                        style: TextStyle(
+                          color: theme.colorScheme.primary,
+                          fontFamily: GoogleFonts.openSans().fontFamily,
+                        ),
                       ),
                     ),
                   ],

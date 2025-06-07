@@ -1,9 +1,15 @@
+import 'dart:async';
+
+import 'package:ereportmo_app/constants.dart';
 import 'package:ereportmo_app/login.dart';
 import 'package:ereportmo_app/report.dart';
 import 'package:ereportmo_app/report_incident.dart';
 import 'package:ereportmo_app/type.dart';
 import 'package:flutter/material.dart';
 import 'package:ereportmo_app/includes/appbar.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:ereportmo_app/includes/ereportmo_shared.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -13,17 +19,27 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  String? userName;
+  @override
+  void initState() {
+    super.initState();
+    getUserName().then((value) {
+      setState(() {
+        userName = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(50),
-        child: EReportModeAppBar(withBackButton: false, title: 'Dashboard'),
+        child: EReportModeAppBar(withBackButton: false, title: 'EReportMo'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(15),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 800),
@@ -32,13 +48,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 const SizedBox(height: 20),
                 Text(
-                  'Welcome, Kian Naquines!',
-                  style: theme.textTheme.headlineSmall?.copyWith(
+                  'Hi! $userName',
+                  style: TextStyle(
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    fontFamily: GoogleFonts.openSans().fontFamily,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const Text('This is your personalized dashboard'),
+                Text(
+                  'This is your personalized dashboard',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade700,
+                    fontFamily: GoogleFonts.openSans().fontFamily,
+                  ),
+                ),
                 const SizedBox(height: 32),
 
                 LayoutBuilder(
@@ -69,7 +94,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         _buildCard(
                           image: 'images/warning-sign.png',
-                          label: 'Report Incidents',
+                          label: 'Incident',
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -131,16 +156,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(context); // Close dialog
-                  // Then replace the screen
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(title: 'Login'),
-                    ),
-                    (route) => false,
-                  );
+                  await logOutData();
                 },
                 child: const Text('Logout'),
               ),
@@ -194,5 +212,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> logOutData() async {
+    final token = await getSecureToken();
+    final response = await http.post(
+      Uri.parse('$baseApiUrl/logout'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      await removeLoginData();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Logged out successfully')));
+      Timer(const Duration(seconds: 3), () {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
+        );
+      });
+    }
   }
 }

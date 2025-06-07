@@ -8,6 +8,7 @@ import 'package:ereportmo_app/models/office.dart';
 import 'package:flutter/material.dart';
 import 'package:ereportmo_app/includes/appbar.dart';
 import 'package:drop_down_list/drop_down_list.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class RegisterScreen extends StatefulWidget {
@@ -186,16 +187,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 20),
               Text(
                 widget.title,
-                style: theme.textTheme.headlineMedium?.copyWith(
+                style: TextStyle(
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.primary,
+                  fontFamily: GoogleFonts.openSans().fontFamily,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 2),
               Text(
                 'Get started by creating an account.',
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: TextStyle(
+                  fontSize: 16,
                   color: Colors.grey[700],
+                  fontFamily: GoogleFonts.openSans().fontFamily,
                 ),
               ),
               const SizedBox(height: 36),
@@ -374,14 +379,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                  child: const Text(
-                    'Register',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child:
+                      isProcessing
+                          ? const SizedBox(
+                            width: 15,
+                            height: 15,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : const Text(
+                            'Register',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -389,11 +404,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     "Have an account?",
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
-                      color: Colors.grey,
+                      color: Colors.grey.shade700,
+                      fontFamily: GoogleFonts.openSans().fontFamily,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -410,7 +426,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     child: Text(
                       "Click here",
-                      style: TextStyle(color: theme.colorScheme.primary),
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontFamily: GoogleFonts.openSans().fontFamily,
+                      ),
                     ),
                   ),
                 ],

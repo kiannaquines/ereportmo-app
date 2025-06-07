@@ -15,3 +15,9 @@ Future<String?> getUserName() async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getString('user_name');
 }
+
+Future<void> removeLoginData() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('access_token');
+  await prefs.remove('user_name');
+}
