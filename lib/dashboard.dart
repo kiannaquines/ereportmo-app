@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:ereportmo_app/constants.dart';
 import 'package:ereportmo_app/login.dart';
@@ -240,13 +241,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'Accept': 'application/json',
       },
     );
+    final responseMessage = jsonDecode(response.body)['message'];
+    final message = responseMessage ?? 'Logged out successfully';
+
     if (response.statusCode == 200) {
       await removeLoginData();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Logged out successfully',
+            message,
             style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            },
           ),
         ),
       );
