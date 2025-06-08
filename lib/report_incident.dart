@@ -81,6 +81,7 @@ class _ReportIncidentState extends State<ReportIncident> {
   }
 
   Future<void> _handleReportIncident() async {
+    final theme = Theme.of(context);
     setState(() {
       _isProcessing = true;
     });
@@ -95,8 +96,32 @@ class _ReportIncidentState extends State<ReportIncident> {
         'Authorization': 'Bearer $token',
       };
 
+      if (_selectedIncidentTypeId == null) {
+        _showErrorSnackBar('Please select an incident type');
+        return;
+      }
+
+      if (_incidentDescriptionController.text.isEmpty) {
+        _showErrorSnackBar('Please enter an incident description');
+        return;
+      }
+
+      if (_latitudeController.text.isEmpty) {
+        _showErrorSnackBar('Please enter a latitude');
+        return;
+      }
+
+      if (_selectedImage == null) {
+        _showErrorSnackBar('Please select an image');
+        return;
+      }
+
+      if (_longitudeController.text.isEmpty) {
+        _showErrorSnackBar('Please enter a longitude');
+        return;
+      }
       final formData = FormData.fromMap({
-        'incident_id': _incidentTypeController.text,
+        'incident_id': _selectedIncidentTypeId, // Ensure this is an int
         'description': _incidentDescriptionController.text,
         'latitude': _latitudeController.text,
         'longitude': _longitudeController.text,
@@ -106,8 +131,6 @@ class _ReportIncidentState extends State<ReportIncident> {
             filename: _selectedImage!.path.split('/').last,
           ),
       });
-
-      debugPrint('Form data: $formData');
 
       final response = await dio.post(
         '$baseApiUrl/report-incident',
@@ -122,20 +145,52 @@ class _ReportIncidentState extends State<ReportIncident> {
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: Colors.green),
+          SnackBar(
+            content: Text(
+              message,
+              style: TextStyle(
+                fontFamily: GoogleFonts.openSans().fontFamily,
+                fontSize: 16,
+              ),
+            ),
+            backgroundColor: theme.colorScheme.primary,
+          ),
         );
-        // Optionally clear form
+
         _incidentTypeController.clear();
         _incidentDescriptionController.clear();
         _latitudeController.clear();
         _longitudeController.clear();
-        setState(() => _selectedImage = null);
+
+        setState(() {
+          _selectedImage = null;
+          _selectedIncidentTypeId = null;
+        });
       } else {
         _showErrorSnackBar(message);
       }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final responseData = e.response!.data;
+        final message =
+            responseData['message'] ??
+            'Something went wrong. Please try again.';
+
+        if (responseData['errors'] != null) {
+          final errors = responseData['errors'] as Map<String, dynamic>;
+          final errorMessages = errors.entries
+              .map((entry) => '${entry.key}: ${entry.value.join(', ')}')
+              .join('\n');
+
+          _showErrorSnackBar(errorMessages);
+        } else {
+          _showErrorSnackBar(message);
+        }
+      } else {
+        _showErrorSnackBar("Network error. Please try again.");
+      }
     } catch (e) {
-      debugPrint("Report error: $e");
-      _showErrorSnackBar("An error occurred while reporting the incident.");
+      _showErrorSnackBar("An unexpected error occurred. Please try again.");
     } finally {
       setState(() {
         _isProcessing = false;
@@ -145,7 +200,16 @@ class _ReportIncidentState extends State<ReportIncident> {
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            fontFamily: GoogleFonts.openSans().fontFamily,
+            fontSize: 16,
+          ),
+        ),
+        backgroundColor: Colors.teal,
+      ),
     );
   }
 
@@ -239,8 +303,9 @@ class _ReportIncidentState extends State<ReportIncident> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          TextField(
+                          TextFormField(
                             maxLines: 5,
+                            controller: _incidentDescriptionController,
                             decoration: InputDecoration(
                               labelText: 'Incident Description',
                               prefixIcon: Icon(Icons.description_outlined),
@@ -406,24 +471,23 @@ class _ReportIncidentState extends State<ReportIncident> {
                         ),
                       ),
                       child:
-                      // _isProcessing
-                      //     ? const SizedBox(
-                      //       width: 20,
-                      //       height: 20,
-                      //       child: CircularProgressIndicator(
-                      //         strokeWidth: 2,
-                      //         color: Colors.white,
-                      //       ),
-                      //     )
-                      //     :
-                      const Text(
-                        'Report Incident',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
+                          _isProcessing
+                              ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : const Text(
+                                'Report Incident',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
                     ),
                   ),
                 ],
