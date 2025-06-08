@@ -33,6 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(50),
@@ -40,104 +41,129 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(15),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                Text(
-                  'Hi! $userName',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: GoogleFonts.openSans().fontFamily,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  'This is your personalized dashboard',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade700,
-                    fontFamily: GoogleFonts.openSans().fontFamily,
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    double screenWidth = constraints.maxWidth;
-                    double cardWidth =
-                        screenWidth < 600 ? screenWidth / 2 - 32 : 200;
-
-                    return Wrap(
-                      spacing: 24,
-                      runSpacing: 24,
-                      alignment: WrapAlignment.center,
-                      children: [
-                        _buildCard(
-                          image: 'images/report-list.png',
-                          label: 'History',
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => const ReportScreen(
-                                      title: 'Report List',
-                                    ),
-                              ),
-                            );
-                          },
-                          width: cardWidth,
-                        ),
-                        _buildCard(
-                          image: 'images/warning-sign.png',
-                          label: 'Incident',
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => const ReportIncident(
-                                      title: 'Report Incident',
-                                    ),
-                              ),
-                            );
-                          },
-                          width: cardWidth,
-                        ),
-                        _buildCard(
-                          image: 'images/incident-type.png',
-                          label: 'Incident Type',
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => const TypeScreen(
-                                      title: 'Incident Type',
-                                    ),
-                              ),
-                            );
-                          },
-                          width: cardWidth,
-                        ),
-                        _buildCard(
-                          image: 'images/logout.png',
-                          label: 'Logout',
-                          onTap: () {
-                            _showLogoutDialog(context);
-                          },
-                          width: cardWidth,
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            Text(
+              'EReportMo Dashboard',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                fontFamily: GoogleFonts.openSans().fontFamily,
+                color: theme.colorScheme.primary,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
+            const SizedBox(height: 10),
+            Text(
+              'Hi! $userName',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                fontFamily: GoogleFonts.openSans().fontFamily,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              'Help the community by reporting incidents.',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade700,
+                fontFamily: GoogleFonts.openSans().fontFamily,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            LayoutBuilder(
+              builder: (context, constraints) {
+                double screenWidth = MediaQuery.of(context).size.width;
+                double cardWidth =
+                    screenWidth < 600 ? screenWidth / 2 - 32 : 200;
+
+                return Wrap(
+                  spacing: 24,
+                  runSpacing: 24,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    _buildCard(
+                      image: 'images/report-list.png',
+                      label: 'History',
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    const ReportScreen(title: 'Report List'),
+                          ),
+                        );
+                      },
+                      width: cardWidth,
+                    ),
+                    _buildCard(
+                      image: 'images/warning-sign.png',
+                      label: 'Incident',
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (context) => const ReportIncident(
+                                  title: 'Report Incident',
+                                ),
+                          ),
+                        );
+                      },
+                      width: cardWidth,
+                    ),
+                    _buildCard(
+                      image: 'images/incident-type.png',
+                      label: 'Incident Type',
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    const TypeScreen(title: 'Incident Type'),
+                          ),
+                        );
+                      },
+                      width: cardWidth,
+                    ),
+                    _buildCard(
+                      image: 'images/logout.png',
+                      label: 'Logout',
+                      onTap: () {
+                        _showLogoutDialog(context);
+                      },
+                      width: cardWidth,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
+          BottomNavigationBarItem(icon: Icon(Icons.logout), label: 'Logout'),
+        ],
+        currentIndex: 0,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const DashboardScreen()),
+            );
+          } else if (index == 1) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const ReportScreen()),
+            );
+          } else if (index == 2) {
+            _showLogoutDialog(context);
+          }
+        },
       ),
     );
   }

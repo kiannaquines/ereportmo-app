@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ereportmo_app/includes/appbar.dart';
 
 class ReportScreen extends StatefulWidget {
-  const ReportScreen({super.key, required this.title});
+  const ReportScreen({super.key, this.title = 'Report List'});
 
   final String title;
 

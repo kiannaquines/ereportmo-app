@@ -55,6 +55,21 @@ class EReportMoApp extends StatelessWidget {
       textTheme: GoogleFonts.openSansTextTheme(textTheme).copyWith(
         bodyMedium: GoogleFonts.poppins(textStyle: textTheme.bodyMedium),
       ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: Colors.teal.shade700,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white,
+        selectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          fontFamily: GoogleFonts.openSans().fontFamily,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          fontFamily: GoogleFonts.openSans().fontFamily,
+        ),
+      ),
     );
   }
 }
