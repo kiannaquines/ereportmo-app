@@ -3,9 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ereportmo_app/dashboard.dart';
 import 'package:ereportmo_app/login.dart';
 import 'package:ereportmo_app/includes/ereportmo_shared.dart';
+import 'package:intl/date_symbol_data_local.dart'; // Needed to load locale data
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('en_PH');
   runApp(const EReportMoApp());
 }
 

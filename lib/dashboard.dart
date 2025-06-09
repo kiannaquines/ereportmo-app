@@ -33,7 +33,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(50),
@@ -42,7 +41,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(15),
         child: SizedBox(
-          width: MediaQuery.of(context).size.width,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -92,8 +90,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       screenWidth < 600 ? screenWidth / 2 - 32 : 200;
 
                   return Wrap(
-                    spacing: 31,
-                    runSpacing: 31,
+                    spacing: 24,
+                    runSpacing: 24,
                     alignment: WrapAlignment.start,
                     children: [
                       _buildCard(

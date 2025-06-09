@@ -524,7 +524,7 @@ class _ReportIncidentState extends State<ReportIncident> {
       setState(() {
         _listOfIncidentTypes.clear();
         _listOfIncidentTypes.addAll(fetchedIncidentType);
-        _incidentTypesCached = true; // mark cache as populated
+        _incidentTypesCached = true;
       });
     }
 
@@ -537,8 +537,6 @@ class _ReportIncidentState extends State<ReportIncident> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
         ),
         dropDownBackgroundColor: Colors.white,
-        submitButtonText: 'Save',
-        clearButtonText: 'Clear',
         data:
             _listOfIncidentTypes
                 .map(
