@@ -38,6 +38,12 @@ class _EReportModeAppBarState extends State<EReportModeAppBar> {
       centerTitle: true,
       backgroundColor: theme.colorScheme.primary,
       foregroundColor: Colors.white,
+      actions: [
+        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+        const SizedBox(width: 10),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.notifications)),
+        const SizedBox(width: 10),
+      ],
     );
   }
 }

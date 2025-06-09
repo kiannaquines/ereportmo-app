@@ -41,107 +41,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            Text(
-              'EReportMo Dashboard',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                fontFamily: GoogleFonts.openSans().fontFamily,
-                color: theme.colorScheme.primary,
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Card(
+                  color: Colors.yellow.shade100,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                    side: BorderSide(color: Colors.yellow.shade700, width: 1),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hi! $userName',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: GoogleFonts.openSans().fontFamily,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Help the community by reporting incidents.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade800,
+                            fontFamily: GoogleFonts.openSans().fontFamily,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Hi! $userName',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                fontFamily: GoogleFonts.openSans().fontFamily,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              'Help the community by reporting incidents.',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade700,
-                fontFamily: GoogleFonts.openSans().fontFamily,
-              ),
-            ),
-            const SizedBox(height: 10),
+              const SizedBox(height: 10),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  double screenWidth = MediaQuery.of(context).size.width;
+                  double cardWidth =
+                      screenWidth < 600 ? screenWidth / 2 - 32 : 200;
 
-            LayoutBuilder(
-              builder: (context, constraints) {
-                double screenWidth = MediaQuery.of(context).size.width;
-                double cardWidth =
-                    screenWidth < 600 ? screenWidth / 2 - 32 : 200;
-
-                return Wrap(
-                  spacing: 24,
-                  runSpacing: 24,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    _buildCard(
-                      image: 'images/report-list.png',
-                      label: 'History',
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    const ReportScreen(title: 'Report List'),
-                          ),
-                        );
-                      },
-                      width: cardWidth,
-                    ),
-                    _buildCard(
-                      image: 'images/warning-sign.png',
-                      label: 'Incident',
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder:
-                                (context) => const ReportIncident(
-                                  title: 'Report Incident',
-                                ),
-                          ),
-                        );
-                      },
-                      width: cardWidth,
-                    ),
-                    _buildCard(
-                      image: 'images/incident-type.png',
-                      label: 'Incident Type',
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    const TypeScreen(title: 'Incident Type'),
-                          ),
-                        );
-                      },
-                      width: cardWidth,
-                    ),
-                    _buildCard(
-                      image: 'images/logout.png',
-                      label: 'Logout',
-                      onTap: () {
-                        _showLogoutDialog(context);
-                      },
-                      width: cardWidth,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
+                  return Wrap(
+                    spacing: 31,
+                    runSpacing: 31,
+                    alignment: WrapAlignment.start,
+                    children: [
+                      _buildCard(
+                        image: 'images/report-list.png',
+                        label: 'History',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ReportScreen(),
+                            ),
+                          );
+                        },
+                        width: cardWidth,
+                      ),
+                      _buildCard(
+                        image: 'images/warning-sign.png',
+                        label: 'Incident',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => const ReportIncident(
+                                    title: 'Report Incident',
+                                  ),
+                            ),
+                          );
+                        },
+                        width: cardWidth,
+                      ),
+                      _buildCard(
+                        image: 'images/logout.png',
+                        label: 'Logout',
+                        onTap: () {
+                          _showLogoutDialog(context);
+                        },
+                        width: cardWidth,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -219,7 +214,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       width: width,
       child: Card(
         color: Colors.white,
-        elevation: 4,
+        elevation: 1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         child: InkWell(
           onTap: onTap,
