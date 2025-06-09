@@ -38,7 +38,7 @@ class EReportMoApp extends StatelessWidget {
         onPrimary: Colors.white,
         onSecondary: Colors.black,
         onSurface: Colors.black87,
-        error: Colors.red.shade800,
+        error: Colors.teal.shade800,
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: Colors.teal.shade700,
@@ -85,8 +85,10 @@ class EntryPoint extends StatelessWidget {
       future: getSecureToken(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator(color: Colors.teal)),
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(color: Colors.teal.shade700),
+            ),
           );
         } else {
           final token = snapshot.data;
