@@ -5,10 +5,12 @@ class EReportModeAppBar extends StatefulWidget {
     super.key,
     this.title = 'EReportMo',
     this.withBackButton = true,
+    this.withActionButtons = false,
   });
 
   final String title;
   final bool withBackButton;
+  final bool withActionButtons;
 
   @override
   State<EReportModeAppBar> createState() => _EReportModeAppBarState();
@@ -39,10 +41,12 @@ class _EReportModeAppBarState extends State<EReportModeAppBar> {
       backgroundColor: theme.colorScheme.primary,
       foregroundColor: Colors.white,
       actions: [
-        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
-        const SizedBox(width: 10),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.notifications)),
-        const SizedBox(width: 10),
+        if (widget.withActionButtons)
+          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+        if (widget.withActionButtons) const SizedBox(width: 10),
+        if (widget.withActionButtons)
+          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications)),
+        if (widget.withActionButtons) const SizedBox(width: 10),
       ],
     );
   }

@@ -42,6 +42,72 @@ class _ReportIncidentState extends State<ReportIncident> {
     getCurrentLocation();
   }
 
+  void onIncidentTypeTextFieldTap() async {
+    if (!_incidentTypesCached) {
+      final fetchedIncidentType = await fetchIncidentTypes();
+      setState(() {
+        _listOfIncidentTypes.clear();
+        _listOfIncidentTypes.addAll(fetchedIncidentType);
+        _incidentTypesCached = true;
+      });
+    }
+
+    DropDownState<String>(
+      dropDown: DropDown<String>(
+        isDismissible: true,
+        enableMultipleSelection: false,
+        bottomSheetTitle: const Text(
+          'Select Incident Type',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+        ),
+        dropDownBackgroundColor: Colors.white,
+        data:
+            _listOfIncidentTypes
+                .map(
+                  (incidentType) => SelectedListItem<String>(
+                    data:
+                        '${incidentType.office.office} - ${incidentType.incident}',
+                  ),
+                )
+                .toList(),
+        onSelected: (selectedItems) {
+          if (selectedItems.isNotEmpty) {
+            final selectedIncidentTypeName = selectedItems.first.data;
+            final selectedIncidentType = _listOfIncidentTypes.firstWhere(
+              (incidentType) =>
+                  '${incidentType.office.office} - ${incidentType.incident}' ==
+                  selectedIncidentTypeName,
+            );
+
+            setState(() {
+              _incidentTypeController.text = selectedIncidentType.incident;
+              _selectedIncidentTypeId = selectedIncidentType.id;
+            });
+          }
+        },
+      ),
+    ).showModal(context);
+  }
+
+  Future<List<IncidentType>> fetchIncidentTypes() async {
+    final token = await getSecureToken();
+    final response = await http.get(
+      Uri.parse('$baseApiUrl/incident-types'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final incidentTypeResponse = IncidentTypeResponse.fromJson(data);
+      return incidentTypeResponse.incidentTypes;
+    } else {
+      throw Exception('Failed to load incident types');
+    }
+  }
+
   void getCurrentLocation() async {
     final location = Location();
     location.enableBackgroundMode(enable: true);
@@ -121,7 +187,7 @@ class _ReportIncidentState extends State<ReportIncident> {
         return;
       }
       final formData = FormData.fromMap({
-        'incident_id': _selectedIncidentTypeId, // Ensure this is an int
+        'incident_id': _selectedIncidentTypeId,
         'description': _incidentDescriptionController.text,
         'latitude': _latitudeController.text,
         'longitude': _longitudeController.text,
@@ -219,13 +285,16 @@ class _ReportIncidentState extends State<ReportIncident> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
-        child: EReportModeAppBar(withBackButton: true, title: widget.title),
+        child: EReportModeAppBar(
+          withBackButton: true,
+          title: widget.title,
+          withActionButtons: true,
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
             Padding(
               padding: EdgeInsets.all(15),
               child: Column(
@@ -348,7 +417,10 @@ class _ReportIncidentState extends State<ReportIncident> {
                                   ElevatedButton.icon(
                                     onPressed:
                                         () => _pickImage(ImageSource.camera),
-                                    icon: Icon(Icons.camera_alt_outlined),
+                                    icon: Icon(
+                                      Icons.camera_alt_outlined,
+                                      color: Colors.white,
+                                    ),
                                     label: Text(
                                       "Camera",
                                       style: TextStyle(
@@ -497,71 +569,5 @@ class _ReportIncidentState extends State<ReportIncident> {
         ),
       ),
     );
-  }
-
-  Future<List<IncidentType>> fetchIncidentTypes() async {
-    final token = await getSecureToken();
-    final response = await http.get(
-      Uri.parse('$baseApiUrl/incident-types'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final incidentTypeResponse = IncidentTypeResponse.fromJson(data);
-      return incidentTypeResponse.incidentTypes;
-    } else {
-      throw Exception('Failed to load incident types');
-    }
-  }
-
-  void onIncidentTypeTextFieldTap() async {
-    if (!_incidentTypesCached) {
-      final fetchedIncidentType = await fetchIncidentTypes();
-      setState(() {
-        _listOfIncidentTypes.clear();
-        _listOfIncidentTypes.addAll(fetchedIncidentType);
-        _incidentTypesCached = true;
-      });
-    }
-
-    DropDownState<String>(
-      dropDown: DropDown<String>(
-        isDismissible: true,
-        enableMultipleSelection: false,
-        bottomSheetTitle: const Text(
-          'Select Incident Type',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-        ),
-        dropDownBackgroundColor: Colors.white,
-        data:
-            _listOfIncidentTypes
-                .map(
-                  (incidentType) => SelectedListItem<String>(
-                    data:
-                        '${incidentType.office.office} - ${incidentType.incident}',
-                  ),
-                )
-                .toList(),
-        onSelected: (selectedItems) {
-          if (selectedItems.isNotEmpty) {
-            final selectedIncidentTypeName = selectedItems.first.data;
-            final selectedIncidentType = _listOfIncidentTypes.firstWhere(
-              (incidentType) =>
-                  '${incidentType.office.office} - ${incidentType.incident}' ==
-                  selectedIncidentTypeName,
-            );
-
-            setState(() {
-              _incidentTypeController.text = selectedIncidentType.incident;
-              _selectedIncidentTypeId = selectedIncidentType.id;
-            });
-          }
-        },
-      ),
-    ).showModal(context);
   }
 }

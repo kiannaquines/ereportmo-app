@@ -258,7 +258,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
               Text(
                 widget.title,
                 style: TextStyle(

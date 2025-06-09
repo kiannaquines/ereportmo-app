@@ -61,7 +61,11 @@ class _ReportScreenState extends State<ReportScreen> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
-        child: EReportModeAppBar(withBackButton: true, title: widget.title),
+        child: EReportModeAppBar(
+          withBackButton: true,
+          title: widget.title,
+          withActionButtons: true,
+        ),
       ),
       body:
           isLoading
@@ -170,16 +174,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                     ),
                                   ),
                                 ),
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => ReportDetailScreen(
-                                            title: 'Report #$index',
-                                          ),
-                                    ),
-                                  );
-                                },
+                                onTap: () {},
                               ),
                             ),
                           );

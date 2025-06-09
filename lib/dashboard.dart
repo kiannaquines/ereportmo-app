@@ -36,7 +36,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(50),
-        child: EReportModeAppBar(withBackButton: false, title: 'EReportMo'),
+        child: EReportModeAppBar(
+          withBackButton: false,
+          title: 'EReportMo',
+          withActionButtons: true,
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(15),
@@ -65,7 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                             fontFamily: GoogleFonts.openSans().fontFamily,
-                            color: Colors.black87,
+                            color: Colors.black54,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -87,28 +91,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 builder: (context, constraints) {
                   double screenWidth = MediaQuery.of(context).size.width;
                   double cardWidth =
-                      screenWidth < 600 ? screenWidth / 2 - 32 : 200;
+                      screenWidth < 600 ? screenWidth / 1 - 32 : 200;
 
                   return Wrap(
-                    spacing: 24,
+                    spacing: 20,
                     runSpacing: 24,
                     alignment: WrapAlignment.start,
                     children: [
                       _buildCard(
-                        image: 'images/report-list.png',
-                        label: 'History',
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const ReportScreen(),
-                            ),
-                          );
-                        },
-                        width: cardWidth,
-                      ),
-                      _buildCard(
                         image: 'images/warning-sign.png',
-                        label: 'Incident',
+                        label: 'Report Incident',
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -122,10 +114,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         width: cardWidth,
                       ),
                       _buildCard(
-                        image: 'images/logout.png',
-                        label: 'Logout',
+                        image: 'images/report-list.png',
+                        label: 'Report History',
                         onTap: () {
-                          _showLogoutDialog(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ReportScreen(),
+                            ),
+                          );
                         },
                         width: cardWidth,
                       ),
@@ -185,13 +181,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ),
-              ElevatedButton(
+              TextButton(
                 onPressed: () async {
                   Navigator.pop(context); // Close dialog
                   await logOutData();
                 },
+                style: TextButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                ),
                 child: Text(
-                  'Logout',
+                  'Confirm',
                   style: TextStyle(
                     fontFamily: GoogleFonts.openSans().fontFamily,
                   ),
@@ -217,6 +217,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: InkWell(
           onTap: onTap,
           autofocus: false,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
           borderRadius: BorderRadius.circular(5),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
@@ -227,8 +229,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   label: label,
                   child: Image.asset(
                     image,
-                    width: width * 0.4,
-                    height: width * 0.4,
+                    width: width * 0.3,
+                    height: width * 0.3,
                     fit: BoxFit.contain,
                   ),
                 ),
