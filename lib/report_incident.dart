@@ -36,6 +36,35 @@ class _ReportIncidentState extends State<ReportIncident> {
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
 
+  void getCurrentLocation() async {
+    final location = Location();
+    location.enableBackgroundMode(enable: true);
+
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    location.onLocationChanged.listen((LocationData currentLocation) {
+      _latitudeController.text = currentLocation.latitude.toString();
+      _longitudeController.text = currentLocation.longitude.toString();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -106,35 +135,6 @@ class _ReportIncidentState extends State<ReportIncident> {
     } else {
       throw Exception('Failed to load incident types');
     }
-  }
-
-  void getCurrentLocation() async {
-    final location = Location();
-    location.enableBackgroundMode(enable: true);
-
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    location.onLocationChanged.listen((LocationData currentLocation) {
-      _latitudeController.text = currentLocation.latitude.toString();
-      _longitudeController.text = currentLocation.longitude.toString();
-    });
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -274,7 +274,7 @@ class _ReportIncidentState extends State<ReportIncident> {
             fontSize: 16,
           ),
         ),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.red.shade600,
       ),
     );
   }
@@ -282,9 +282,11 @@ class _ReportIncidentState extends State<ReportIncident> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(50),
+        preferredSize: const Size.fromHeight(56),
         child: EReportModeAppBar(
           withBackButton: true,
           title: widget.title,
@@ -292,279 +294,368 @@ class _ReportIncidentState extends State<ReportIncident> {
         ),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Report Incident',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: GoogleFonts.openSans().fontFamily,
-                      color: theme.colorScheme.primary,
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Report Incident',
+                  style: GoogleFonts.inter(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
                   ),
-                  Text(
-                    'Report the incident you have witnessed',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      fontFamily: GoogleFonts.openSans().fontFamily,
-                      color: Colors.grey.shade700,
-                    ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Provide details about the incident you witnessed',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: Colors.grey[600],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: Column(
-                children: [
-                  Card(
-                    color: Colors.white,
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    margin: const EdgeInsets.only(bottom: 24),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Reported Incident Information",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 25),
-                          TextFormField(
-                            controller: _incidentTypeController,
-                            readOnly: true,
-                            onTap: onIncidentTypeTextFieldTap,
-                            decoration: InputDecoration(
-                              labelText: 'Incident Type',
-                              prefixIcon: Icon(Icons.location_on_outlined),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade200,
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 16,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            maxLines: 5,
-                            controller: _incidentDescriptionController,
-                            decoration: InputDecoration(
-                              labelText: 'Incident Description',
-                              prefixIcon: Icon(Icons.description_outlined),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade200,
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 16,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Attach Photo',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.primary,
-                                  fontFamily: GoogleFonts.openSans().fontFamily,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Wrap(
-                                spacing: 12,
-                                runSpacing: 8,
-                                children: [
-                                  ElevatedButton.icon(
-                                    onPressed:
-                                        () => _pickImage(ImageSource.camera),
-                                    icon: Icon(
-                                      Icons.camera_alt_outlined,
-                                      color: Colors.white,
-                                    ),
-                                    label: Text(
-                                      "Camera",
-                                      style: TextStyle(
-                                        fontFamily:
-                                            GoogleFonts.openSans().fontFamily,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          theme.colorScheme.primary,
-                                      foregroundColor: Colors.white,
-                                      elevation: 1,
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 10,
-                                        horizontal: 5,
-                                      ),
-                                    ),
-                                  ),
-                                  ElevatedButton.icon(
-                                    onPressed:
-                                        () => _pickImage(ImageSource.gallery),
-                                    icon: Icon(Icons.photo_library_outlined),
-                                    label: Text(
-                                      "Gallery",
-                                      style: TextStyle(
-                                        fontFamily:
-                                            GoogleFonts.openSans().fontFamily,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          theme.colorScheme.primary,
-                                      foregroundColor: Colors.white,
-                                      elevation: 1,
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 10,
-                                        horizontal: 5,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              if (_selectedImage != null)
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image.file(
-                                    _selectedImage!,
-                                    height: 200,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                            ],
-                          ),
+            const SizedBox(height: 24),
 
-                          const SizedBox(height: 16),
-                          TextFormField(
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Colors.grey.shade200, width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Incident Details",
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    TextFormField(
+                      controller: _incidentTypeController,
+                      readOnly: true,
+                      onTap: onIncidentTypeTextFieldTap,
+                      decoration: InputDecoration(
+                        labelText: 'Incident Type',
+                        labelStyle: GoogleFonts.poppins(
+                          color: Colors.grey[600],
+                        ),
+                        hintText: 'Select incident type',
+                        prefixIcon: Icon(
+                          Icons.warning_amber_rounded,
+                          color: theme.colorScheme.primary,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 16,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    TextFormField(
+                      maxLines: 5,
+                      minLines: 3,
+                      controller: _incidentDescriptionController,
+                      decoration: InputDecoration(
+                        labelText: 'Incident Description',
+                        labelStyle: GoogleFonts.poppins(
+                          color: Colors.grey[600],
+                        ),
+                        hintText: 'Describe what happened...',
+                        alignLabelWithHint: true,
+                        prefixIcon: Icon(
+                          Icons.description_outlined,
+                          color: theme.colorScheme.primary,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 16,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Attach Photo Evidence',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Take a photo or select from gallery',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () => _pickImage(ImageSource.camera),
+                                icon: const Icon(Icons.camera_alt_outlined),
+                                label: const Text("Camera"),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  side: BorderSide(
+                                    color: colorScheme.primary.withOpacity(0.5),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed:
+                                    () => _pickImage(ImageSource.gallery),
+                                icon: const Icon(Icons.photo_library_outlined),
+                                label: const Text("Gallery"),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  side: BorderSide(
+                                    color: colorScheme.primary.withOpacity(0.5),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        if (_selectedImage != null)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Stack(
+                              children: [
+                                Image.file(
+                                  _selectedImage!,
+                                  height: 180,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.5),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _selectedImage = null;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    Text(
+                      'Incident Location',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
                             controller: _latitudeController,
                             readOnly: true,
                             decoration: InputDecoration(
                               labelText: 'Latitude',
-                              prefixIcon: Icon(Icons.location_on_outlined),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade200,
-                                ),
+                              labelStyle: GoogleFonts.poppins(
+                                color: Colors.grey[600],
                               ),
+                              prefixIcon: Icon(
+                                Icons.location_on_outlined,
+                                color: theme.colorScheme.primary,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
+                                borderRadius: BorderRadius.circular(8),
                                 borderSide: BorderSide(
                                   color: Colors.grey.shade300,
                                 ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 10,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: theme.colorScheme.primary,
+                                  width: 2,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16,
                                 horizontal: 16,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          TextFormField(
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
                             controller: _longitudeController,
                             readOnly: true,
                             decoration: InputDecoration(
                               labelText: 'Longitude',
-                              prefixIcon: Icon(Icons.location_on_outlined),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade200,
-                                ),
+                              labelStyle: GoogleFonts.poppins(
+                                color: Colors.grey[600],
+                              ),
+                              prefixIcon: Icon(
+                                Icons.location_on_outlined,
+                                color: theme.colorScheme.primary,
                               ),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
+                                borderRadius: BorderRadius.circular(8),
                                 borderSide: BorderSide(
                                   color: Colors.grey.shade300,
                                 ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 10,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: theme.colorScheme.primary,
+                                  width: 2,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16,
                                 horizontal: 16,
                               ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _handleReportIncident,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        backgroundColor: theme.colorScheme.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
                         ),
-                      ),
-                      child:
-                          _isProcessing
-                              ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                              : const Text(
-                                'Report Incident',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      'Location is automatically detected',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+            const SizedBox(height: 24),
+
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: _handleReportIncident,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
+                ),
+                child:
+                    _isProcessing
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                        : Text(
+                          'Submit Report',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

@@ -5,7 +5,6 @@ import 'package:ereportmo_app/constants.dart';
 import 'package:ereportmo_app/login.dart';
 import 'package:ereportmo_app/report.dart';
 import 'package:ereportmo_app/report_incident.dart';
-import 'package:ereportmo_app/type.dart';
 import 'package:flutter/material.dart';
 import 'package:ereportmo_app/includes/appbar.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,14 +24,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     getUserName().then((value) {
-      setState(() {
-        userName = value;
-      });
+      if (mounted) {
+        setState(() {
+          userName = value;
+        });
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(50),
@@ -43,110 +47,218 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(15),
-        child: SizedBox(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: Card(
-                  color: Colors.yellow.shade100,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    side: BorderSide(color: Colors.yellow.shade700, width: 1),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hi! $userName',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: GoogleFonts.openSans().fontFamily,
-                            color: Colors.black54,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Help the community by reporting incidents.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade800,
-                            fontFamily: GoogleFonts.openSans().fontFamily,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Welcome Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorScheme.primary.withOpacity(0.3),
+                  width: 1,
                 ),
               ),
-              const SizedBox(height: 10),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  double screenWidth = MediaQuery.of(context).size.width;
-                  double cardWidth =
-                      screenWidth < 600 ? screenWidth / 1 - 32 : 200;
-
-                  return Wrap(
-                    spacing: 20,
-                    runSpacing: 24,
-                    alignment: WrapAlignment.start,
-                    children: [
-                      _buildCard(
-                        image: 'images/warning-sign.png',
-                        label: 'Report Incident',
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => const ReportIncident(
-                                    title: 'Report Incident',
-                                  ),
-                            ),
-                          );
-                        },
-                        width: cardWidth,
-                      ),
-                      _buildCard(
-                        image: 'images/report-list.png',
-                        label: 'Report History',
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const ReportScreen(),
-                            ),
-                          );
-                        },
-                        width: cardWidth,
-                      ),
-                    ],
-                  );
-                },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Welcome back, ${userName ?? ''}',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Help keep your community safe by reporting incidents.',
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
+            const SizedBox(height: 24),
+
+            // Quick Actions Title
+            Text(
+              'Quick Actions',
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Action Cards Grid
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final cardWidth = MediaQuery.of(context).size.width;
+                final cardHeight = cardWidth * 0.5;
+
+                return Wrap(
+                  spacing: 20,
+                  runSpacing: 20,
+                  children: [
+                    _buildActionCard(
+                      context,
+                      icon: Icons.warning_amber_rounded,
+                      label: 'Report Incident',
+                      description: 'Report any incident in your area',
+                      color: colorScheme.primary,
+                      height: cardHeight,
+                      width: cardWidth,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => const ReportIncident(
+                                  title: 'Report Incident',
+                                ),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildActionCard(
+                      context,
+                      icon: Icons.history_rounded,
+                      label: 'Report History',
+                      description: 'View your reported incidents',
+                      color: colorScheme.secondary,
+                      height: cardHeight,
+                      width: cardWidth,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ReportScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
+    );
+  }
+
+  Widget _buildActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String description,
+    required Color color,
+    required double width,
+    required double height,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, size: 32, color: color),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  label,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                Text(
+                  description,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
-          BottomNavigationBarItem(icon: Icon(Icons.logout), label: 'Logout'),
-        ],
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
+      ),
+      child: BottomNavigationBar(
+        backgroundColor: Colors.white,
+        selectedFontSize: 12,
         currentIndex: 0,
+        elevation: 0,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: Colors.grey[600],
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history_outlined),
+            activeIcon: Icon(Icons.history_rounded),
+            label: 'History',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.logout_outlined),
+            activeIcon: Icon(Icons.logout_rounded),
+            label: 'Logout',
+          ),
+        ],
         onTap: (index) {
           if (index == 0) {
-            Navigator.of(context).push(
+            Navigator.pushReplacement(
+              context,
               MaterialPageRoute(builder: (context) => const DashboardScreen()),
             );
           } else if (index == 1) {
-            Navigator.of(context).push(
+            Navigator.push(
+              context,
               MaterialPageRoute(builder: (context) => const ReportScreen()),
             );
           } else if (index == 2) {
@@ -158,46 +270,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            backgroundColor: Colors.white,
-            title: Text(
-              'Logout',
-              style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          (context) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            content: Text(
-              'Are you sure you want to logout?',
-              style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Logout',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Are you sure you want to logout?',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Cancel',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await logOutData();
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text('Confirm'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context), // Dismiss dialog
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.openSans().fontFamily,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context); // Close dialog
-                  await logOutData();
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                ),
-                child: Text(
-                  'Confirm',
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.openSans().fontFamily,
-                  ),
-                ),
-              ),
-            ],
           ),
     );
   }

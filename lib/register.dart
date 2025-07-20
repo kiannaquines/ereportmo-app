@@ -239,8 +239,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _emailController.dispose();
+    _nameController.dispose();
+    _barangayController.dispose();
+    _municipalityController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -253,36 +265,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth > 600 ? 100 : 24,
+            vertical: 24,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 widget.title,
-                style: TextStyle(
-                  fontSize: 24,
+                style: GoogleFonts.inter(
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.primary,
-                  fontFamily: GoogleFonts.openSans().fontFamily,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 'Get started by creating an account.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[700],
-                  fontFamily: GoogleFonts.openSans().fontFamily,
-                ),
+                style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[600]),
               ),
               const SizedBox(height: 36),
               // Name field
               Card(
-                color: Colors.white,
-                elevation: 1,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.grey.shade200, width: 1),
                 ),
                 margin: const EdgeInsets.only(bottom: 24),
                 child: Padding(
@@ -304,17 +314,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _nameController,
                         decoration: InputDecoration(
                           labelText: 'Full Name',
-                          prefixIcon: Icon(Icons.person_outlined),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          labelStyle: GoogleFonts.poppins(
+                            color: Colors.grey[600],
+                          ),
+                          prefixIcon: Icon(
+                            Icons.person_outlined,
+                            color: theme.colorScheme.primary,
                           ),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 10,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.primary,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16,
                             horizontal: 16,
                           ),
                         ),
@@ -327,17 +350,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onTap: onMunicipalityTextFieldTap,
                         decoration: InputDecoration(
                           labelText: 'Municipality',
-                          prefixIcon: Icon(Icons.location_on_outlined),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          labelStyle: GoogleFonts.poppins(
+                            color: Colors.grey[600],
+                          ),
+                          prefixIcon: Icon(
+                            Icons.location_on_outlined,
+                            color: theme.colorScheme.primary,
                           ),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 10,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.primary,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16,
                             horizontal: 16,
                           ),
                         ),
@@ -348,17 +384,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _barangayController,
                         decoration: InputDecoration(
                           labelText: 'Barangay',
-                          prefixIcon: Icon(Icons.location_on_outlined),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          labelStyle: GoogleFonts.poppins(
+                            color: Colors.grey[600],
+                          ),
+                          prefixIcon: Icon(
+                            Icons.location_on_outlined,
+                            color: theme.colorScheme.primary,
                           ),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 10,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.primary,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16,
                             horizontal: 16,
                           ),
                         ),
@@ -370,10 +419,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
 
               Card(
-                color: Colors.white,
-                elevation: 1,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.grey.shade200, width: 1),
                 ),
                 margin: const EdgeInsets.only(bottom: 24),
                 child: Padding(
@@ -396,18 +445,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           labelText: 'Email',
+                          labelStyle: GoogleFonts.poppins(
+                            color: Colors.grey[600],
+                          ),
                           hintText: 'Enter your email',
-                          prefixIcon: Icon(Icons.email_outlined),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: theme.colorScheme.primary,
                           ),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 10,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.primary,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16,
                             horizontal: 16,
                           ),
                         ),
@@ -419,18 +481,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Password',
+                          labelStyle: GoogleFonts.poppins(
+                            color: Colors.grey[600],
+                          ),
                           hintText: 'Enter your password',
-                          prefixIcon: Icon(Icons.lock_outlined),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          prefixIcon: Icon(
+                            Icons.lock_outlined,
+                            color: theme.colorScheme.primary,
                           ),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 10,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.primary,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16,
                             horizontal: 16,
                           ),
                         ),
@@ -442,18 +517,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
-                          hintText: 'Enter your password again',
-                          prefixIcon: Icon(Icons.lock_outlined),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: BorderSide(color: Colors.grey.shade200),
+                          labelStyle: GoogleFonts.poppins(
+                            color: Colors.grey[600],
                           ),
+                          hintText: 'Enter your password again',
+                          prefixIcon: Icon(
+                            Icons.lock_outlined,
+                            color: theme.colorScheme.primary,
+                          ),
+
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 10,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.primary,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16,
                             horizontal: 16,
                           ),
                         ),
@@ -467,14 +556,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Register button
               SizedBox(
                 width: double.infinity,
+                height: 55,
                 child: ElevatedButton(
                   onPressed: _handleRegister,
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
                     backgroundColor: theme.colorScheme.primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child:
                       isProcessing
@@ -486,9 +577,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               color: Colors.white,
                             ),
                           )
-                          : const Text(
+                          : Text(
                             'Register',
-                            style: TextStyle(
+                            style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
@@ -497,39 +588,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Have an account?",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade700,
-                      fontFamily: GoogleFonts.openSans().fontFamily,
+
+              Center(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      "Have an account?",
+                      style: GoogleFonts.poppins(color: Colors.grey[600]),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
+                    const SizedBox(width: 4),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: theme.colorScheme.primary,
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: Text(
+                        "Login",
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.primary,
                         ),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor: theme.colorScheme.primary,
-                    ),
-                    child: Text(
-                      "Click here",
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                        fontFamily: GoogleFonts.openSans().fontFamily,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

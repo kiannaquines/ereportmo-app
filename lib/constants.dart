@@ -1,7 +1,1 @@
-const String baseIpAddress = '192.168.0.129';
-const String baseIpAddressPort = '8000';
-const String apiVersion = 'v1';
-const String apiProtocol = 'http';
-
-const String baseApiUrl =
-    '$apiProtocol://$baseIpAddress:$baseIpAddressPort/api/$apiVersion';
+const String baseApiUrl = 'http://192.168.137.1:8000/api/v1';
