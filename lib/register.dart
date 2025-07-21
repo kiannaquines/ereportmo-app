@@ -60,7 +60,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final barangay = _barangayController.text;
     final municipality = _municipalityController.text;
 
-    // Basic form validation
     if (name.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
@@ -184,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       );
-      //   clear input fields
+
       _passwordController.clear();
       _confirmPasswordController.clear();
       _emailController.clear();
@@ -340,6 +339,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             vertical: 16,
                             horizontal: 16,
                           ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -376,6 +377,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             vertical: 16,
                             horizontal: 16,
                           ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -410,6 +413,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             vertical: 16,
                             horizontal: 16,
                           ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -472,6 +477,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             vertical: 16,
                             horizontal: 16,
                           ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -508,6 +515,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             vertical: 16,
                             horizontal: 16,
                           ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -545,6 +554,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             vertical: 16,
                             horizontal: 16,
                           ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
                         ),
                       ),
                       const SizedBox(height: 10),

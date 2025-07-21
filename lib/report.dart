@@ -30,17 +30,17 @@ class _ReportScreenState extends State<ReportScreen> {
       final response = await dio.delete('$baseApiUrl/report-incident/$id');
 
       if (response.statusCode == 200) {
-        await fetchReports();
+        await _fetchReports();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               'Report deleted successfully',
               style: TextStyle(
-                fontFamily: GoogleFonts.openSans().fontFamily,
+                fontFamily: GoogleFonts.inter().fontFamily,
                 color: Colors.white,
               ),
             ),
-            backgroundColor: Colors.green.shade600,
+            backgroundColor: Colors.green,
           ),
         );
       } else {
@@ -65,10 +65,10 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void initState() {
     super.initState();
-    fetchReports();
+    _fetchReports();
   }
 
-  Future<void> fetchReports() async {
+  Future<void> _fetchReports() async {
     final token = await getSecureToken();
     try {
       final dio = Dio();
@@ -76,16 +76,16 @@ class _ReportScreenState extends State<ReportScreen> {
       dio.options.headers['Accept'] = 'application/json';
 
       final response = await dio.get('$baseApiUrl/my-reported-incidents');
-
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         final List<ReportedIncident> fetchedReports =
             data.map((json) => ReportedIncident.fromJson(json)).toList();
-
-        setState(() {
-          reports = fetchedReports;
-          isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            reports = fetchedReports;
+            isLoading = false;
+          });
+        }
       } else {
         throw Exception('Failed to load reports');
       }
@@ -113,7 +113,7 @@ class _ReportScreenState extends State<ReportScreen> {
           isLoading
               ? const Center(child: CircularProgressIndicator())
               : RefreshIndicator(
-                onRefresh: fetchReports,
+                onRefresh: _fetchReports,
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(20),
                   child: Column(

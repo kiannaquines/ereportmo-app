@@ -8,7 +8,7 @@ class ReportedIncident {
   final DateTime updatedAt;
   final double latitude;
   final double longitude;
-  final String description;
+  final String? description;
   final Incident incident;
   final User user;
 
@@ -36,8 +36,8 @@ class ReportedIncident {
       incidentResponseStatus: json['incident_response_status'],
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       updatedAt: DateTime.parse(json['updated_at']).toLocal(),
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
+      latitude: double.tryParse(json['latitude'].toString()) ?? 0.0,
+      longitude: double.tryParse(json['longitude'].toString()) ?? 0.0,
       description: json['description'],
       incident: Incident.fromJson(json['incident']),
       user: User.fromJson(json['user']),
@@ -77,7 +77,7 @@ class User {
   final String email;
   final String municipality;
   final String barangay;
-  final String? emailVerifiedAt;
+  final DateTime? emailVerifiedAt;
   final int? officeId;
   final String role;
   final DateTime createdAt;
@@ -103,9 +103,12 @@ class User {
       email: json['email'],
       municipality: json['municipality'],
       barangay: json['barangay'],
-      emailVerifiedAt: json['email_verified_at'],
+      emailVerifiedAt:
+          json['email_verified_at'] != null
+              ? DateTime.tryParse(json['email_verified_at'])
+              : null,
       officeId: json['office_id'],
-      role: json['role'],
+      role: json['role'].toString(),
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
