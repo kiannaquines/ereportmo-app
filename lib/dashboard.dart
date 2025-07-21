@@ -85,16 +85,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Quick Actions Title
             Text(
               'Quick Actions',
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+            Text(
+              'Quickly access important features',
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.normal,
+                fontFamily: GoogleFonts.openSans().fontFamily,
+                color: colorScheme.onSecondary.withOpacity(0.7),
+                fontSize: 12,
               ),
             ),
             const SizedBox(height: 16),
 
-            // Action Cards Grid
             LayoutBuilder(
               builder: (context, constraints) {
                 final cardWidth = MediaQuery.of(context).size.width;
@@ -201,11 +209,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
+                const SizedBox(height: 4), // Added smaller spacing
                 Text(
                   description,
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    // Changed to bodyMedium
                     fontWeight: FontWeight.w400,
-                    color: theme.colorScheme.onSurface,
+                    color: theme.colorScheme.onSurface.withOpacity(
+                      0.7,
+                    ), // Reduced opacity
                   ),
                 ),
               ],
