@@ -349,56 +349,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildCard({
-    required String image,
-    required String label,
-    required VoidCallback onTap,
-    required double width,
-  }) {
-    return SizedBox(
-      width: width,
-      child: Card(
-        color: Colors.white,
-        elevation: 1,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-        child: InkWell(
-          onTap: onTap,
-          autofocus: false,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          borderRadius: BorderRadius.circular(5),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Semantics(
-                  label: label,
-                  child: Image.asset(
-                    image,
-                    width: width * 0.3,
-                    height: width * 0.3,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    fontFamily: GoogleFonts.openSans().fontFamily,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Future<void> logOutData() async {
     final token = await getSecureToken();
     final response = await http.post(
