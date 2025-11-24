@@ -295,12 +295,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth > 600 ? 100 : 24,
-            vertical: 24,
-          ),
-          child: Column(
+        child: RefreshIndicator(
+          onRefresh: fetchMunicipalities,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth > 600 ? 100 : 24,
+              vertical: 24,
+            ),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -685,6 +688,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
             ],
+            ),
           ),
         ),
       ),
