@@ -104,7 +104,7 @@ class _MunicipalitiesScreenState extends State<MunicipalitiesScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Below is a list of municipalities currently supported by the application. Contact the administrator to request additions.',
+                'Below is a list of municipalities currently supported by the application.',
                 style: GoogleFonts.poppins(color: Colors.grey[700]),
               ),
               const SizedBox(height: 12),
