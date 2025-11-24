@@ -6,6 +6,7 @@ import 'package:ereportmo_app/constants.dart';
 import 'package:ereportmo_app/login.dart';
 import 'package:flutter/material.dart';
 import 'package:ereportmo_app/includes/appbar.dart';
+import 'package:ereportmo_app/municipalities.dart';
 import 'package:drop_down_list/drop_down_list.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -28,26 +29,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _barangayController = TextEditingController();
   final TextEditingController _municipalityController = TextEditingController();
   bool isProcessing = false;
-  final List<String> _listOfMunicipalities = [
-    'Alamada',
-    'Aleosan',
-    'Antipas',
-    'Arakan',
-    'Banisilan',
-    'Carmen',
-    'Kabacan',
-    'Libungan',
-    'Magpet',
-    'Makilala',
-    'Matalam',
-    'M\'lang',
-    'Midsayap',
-    'Pigcawayan',
-    'Pikit',
-    'President Roxas',
-    'Tulunan',
-    'Kidapawan City',
-  ];
+  List<String> _listOfMunicipalities = [];
+  bool _isFetchingMunicipalities = false;
+  String? _municipalitiesError;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMunicipalities();
+  }
+
+  Future<void> fetchMunicipalities() async {
+    setState(() {
+      _isFetchingMunicipalities = true;
+      _municipalitiesError = null;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseApiUrl/locations'),
+        headers: {
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonBody = jsonDecode(response.body);
+        final List<dynamic>? municipalitiesJson = jsonBody['municipalities'];
+        if (municipalitiesJson != null) {
+          setState(() {
+            _listOfMunicipalities = municipalitiesJson.cast<String>().toList();
+          });
+        } else {
+          setState(() {
+            _municipalitiesError = 'Malformed response from server';
+          });
+        }
+      } else {
+        setState(() {
+          _municipalitiesError = 'Failed to load municipalities';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _municipalitiesError = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isFetchingMunicipalities = false;
+      });
+    }
+  }
 
   void _handleRegister() async {
     setState(() {
@@ -381,6 +413,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           fillColor: Colors.grey.shade50,
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const MunicipalitiesScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Supported municipalities',
+                            style: GoogleFonts.poppins(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 16),
 
                       TextFormField(
@@ -640,6 +692,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void onMunicipalityTextFieldTap() {
+    // If municipalities are not loaded yet, attempt to fetch again
+    if (_listOfMunicipalities.isEmpty && !_isFetchingMunicipalities) {
+      fetchMunicipalities();
+    }
+
+    // Show a simple error/snackbar if we couldn't load municipalities
+    if (_municipalitiesError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _municipalitiesError!,
+            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
+          ),
+        ),
+      );
+      return;
+    }
+
     DropDownState<String>(
       dropDown: DropDown<String>(
         isDismissible: true,
@@ -651,13 +721,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         dropDownBackgroundColor: Colors.white,
         submitButtonText: 'Save',
         clearButtonText: 'Clear',
-        data:
-            _listOfMunicipalities
-                .map(
-                  (municipality) =>
-                      SelectedListItem<String>(data: municipality),
-                )
-                .toList(),
+        data: _listOfMunicipalities.isNotEmpty
+            ? _listOfMunicipalities
+                .map((municipality) => SelectedListItem<String>(data: municipality))
+                .toList()
+            : [SelectedListItem<String>(data: 'No municipalities available')],
         onSelected: (selectedItems) {
           if (selectedItems.isNotEmpty) {
             // Set the selected item to the text controller
