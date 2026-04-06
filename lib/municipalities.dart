@@ -1,9 +1,10 @@
 import 'dart:convert';
 
 import 'package:ereportmo_app/constants.dart';
+import 'package:ereportmo_app/includes/app_fonts.dart';
 import 'package:ereportmo_app/includes/appbar.dart';
+import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class MunicipalitiesScreen extends StatefulWidget {
@@ -18,6 +19,14 @@ class _MunicipalitiesScreenState extends State<MunicipalitiesScreen> {
   bool _isLoading = false;
   String? _error;
   final TextEditingController _searchController = TextEditingController();
+
+  List<String> get _filteredMunicipalities {
+    final query = _searchController.text.trim().toLowerCase();
+    if (query.isEmpty) return _municipalities;
+    return _municipalities
+        .where((item) => item.toLowerCase().contains(query))
+        .toList();
+  }
 
   @override
   void initState() {
@@ -34,24 +43,15 @@ class _MunicipalitiesScreenState extends State<MunicipalitiesScreen> {
     try {
       final response = await http.get(
         Uri.parse('$baseApiUrl/locations'),
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer 123',
-        },
+        headers: {'Accept': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonBody = jsonDecode(response.body);
         final List<dynamic>? arr = jsonBody['municipalities'];
-        if (arr != null) {
-          setState(() {
-            _municipalities = arr.cast<String>().toList();
-          });
-        } else {
-          setState(() {
-            _error = 'Malformed server response';
-          });
-        }
+        setState(() {
+          _municipalities = arr?.cast<String>().toList() ?? [];
+        });
       } else {
         setState(() {
           _error = 'Failed to load municipalities';
@@ -62,137 +62,216 @@ class _MunicipalitiesScreenState extends State<MunicipalitiesScreen> {
         _error = e.toString();
       });
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final filtered = _filteredMunicipalities;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: kAppCanvas,
       appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(50),
+        preferredSize: Size.fromHeight(84),
         child: EReportModeAppBar(
           withBackButton: true,
-          title: 'Supported Municipalities',
+          title: 'Municipalities',
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Municipalities supported by this app',
-                      style: GoogleFonts.inter(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
+        child: RefreshIndicator(
+          onRefresh: _fetchMunicipalities,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: appScreenPadding(context),
+            child: buildScreenPanel(
+              context: context,
+              children: [
+                Text(
+                  'Supported Areas',
+                  style: GoogleFonts.inter(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: kAppTitleText,
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Below is a list of municipalities currently supported by the application.',
-                style: GoogleFonts.poppins(color: Colors.grey[700]),
-              ),
-              const SizedBox(height: 12),
-
-              // Search box
-              Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: TextField(
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Search the municipalities currently available in the reporting system.',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    height: 1.45,
+                    color: kAppMutedText,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: kAppAccentSoft,
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Icon(
+                          Icons.location_city_outlined,
+                          color: kAppAccent,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '${_municipalities.length} municipalities available',
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: kAppTitleText,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
                   controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search municipalities',
-                    prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey.shade200),
-                    ),
+                  decoration: appInputDecoration(
+                    context,
+                    label: 'Search municipalities',
+                    icon: Icons.search_rounded,
                   ),
                   onChanged: (_) => setState(() {}),
                 ),
-              ),
-
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: _fetchMunicipalities,
-                  child: Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Colors.grey.shade200, width: 1),
+                const SizedBox(height: 20),
+                if (_isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: CircularProgressIndicator(color: kAppAccent),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: _isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : _error != null
-                              ? Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(_error!, style: GoogleFonts.poppins()),
-                                      const SizedBox(height: 8),
-                                      ElevatedButton(
-                                        onPressed: _fetchMunicipalities,
-                                        child: Text('Retry', style: GoogleFonts.poppins()),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : _municipalities.isEmpty
-                                  ? Center(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.location_off, size: 56, color: Colors.grey.shade400),
-                                          const SizedBox(height: 8),
-                                          Text('No municipalities available', style: GoogleFonts.poppins(color: Colors.grey[600])),
-                                        ],
-                                      ),
-                                    )
-                                  : ListView.separated(
-                                      itemCount: _municipalities.where((m) => m.toLowerCase().contains(_searchController.text.toLowerCase())).length,
-                                      separatorBuilder: (_, __) => const Divider(height: 1),
-                                      itemBuilder: (context, index) {
-                                        final filtered = _municipalities.where((m) => m.toLowerCase().contains(_searchController.text.toLowerCase())).toList();
-                                        final item = filtered[index];
-                                        return ListTile(
-                                          leading: CircleAvatar(
-                                            backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                                            child: Icon(Icons.location_city, color: theme.colorScheme.primary),
-                                          ),
-                                          title: Text(item, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-                                          subtitle: Text('Supported', style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600])),
-                                          trailing: const Icon(Icons.chevron_right),
-                                          onTap: () {},
-                                        );
-                                      },
+                  )
+                else if (_error != null)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: appSoftCardDecoration(),
+                    child: Column(
+                      children: [
+                        Text(
+                          _error!,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(color: kAppMutedText),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: _fetchMunicipalities,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                else if (filtered.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: appSoftCardDecoration(),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.location_off_outlined,
+                          size: 48,
+                          color: Color(0xFFC8B9AF),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'No municipalities match your search',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: kAppTitleText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  ...filtered.map(
+                    (item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Container(
+                        decoration: appSoftCardDecoration(),
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 46,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                color: kAppAccentSoft,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Icon(
+                                Icons.place_outlined,
+                                color: kAppAccent,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: kAppTitleText,
                                     ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Supported municipality',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: kAppMutedText,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.chevron_right_rounded,
+                              color: kAppMutedText,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }
