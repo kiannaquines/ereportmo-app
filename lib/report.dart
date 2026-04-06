@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:ereportmo_app/constants.dart';
+import 'package:ereportmo_app/includes/app_fonts.dart';
+import 'package:ereportmo_app/includes/appbar.dart';
+import 'package:ereportmo_app/includes/ereportmo_shared.dart';
+import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:ereportmo_app/includes/utils.dart';
 import 'package:ereportmo_app/models/report.dart';
 import 'package:flutter/material.dart';
-import 'package:ereportmo_app/includes/appbar.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:ereportmo_app/includes/ereportmo_shared.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key, this.title = 'Report History'});
@@ -20,6 +21,12 @@ class _ReportScreenState extends State<ReportScreen> {
   List<ReportedIncident> reports = [];
   bool isLoading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchReports();
+  }
+
   Future<void> deleteReport(String id) async {
     try {
       final token = await getSecureToken();
@@ -31,41 +38,17 @@ class _ReportScreenState extends State<ReportScreen> {
 
       if (response.statusCode == 200) {
         await _fetchReports();
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Report deleted successfully',
-              style: TextStyle(
-                fontFamily: GoogleFonts.inter().fontFamily,
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: Colors.green,
-          ),
+          const SnackBar(content: Text('Report deleted successfully')),
         );
-      } else {
-        throw Exception('Failed to delete');
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Failed to delete report: ${e.toString()}',
-            style: TextStyle(
-              fontFamily: GoogleFonts.openSans().fontFamily,
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red.shade600,
-        ),
+        SnackBar(content: Text('Failed to delete report: ${e.toString()}')),
       );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchReports();
   }
 
   Future<void> _fetchReports() async {
@@ -78,7 +61,7 @@ class _ReportScreenState extends State<ReportScreen> {
       final response = await dio.get('$baseApiUrl/my-reported-incidents');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
-        final List<ReportedIncident> fetchedReports =
+        final fetchedReports =
             data.map((json) => ReportedIncident.fromJson(json)).toList();
         if (mounted) {
           setState(() {
@@ -89,20 +72,21 @@ class _ReportScreenState extends State<ReportScreen> {
       } else {
         throw Exception('Failed to load reports');
       }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
+      backgroundColor: kAppCanvas,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
+        preferredSize: const Size.fromHeight(84),
         child: EReportModeAppBar(
           withBackButton: true,
           title: widget.title,
@@ -111,79 +95,59 @@ class _ReportScreenState extends State<ReportScreen> {
       ),
       body:
           isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                child: CircularProgressIndicator(color: kAppAccent),
+              )
               : RefreshIndicator(
                 onRefresh: _fetchReports,
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: appScreenPadding(context),
+                  child: buildScreenPanel(
+                    context: context,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Your Reports',
-                            style: GoogleFonts.inter(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'View the status of all your submitted reports',
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
+                      buildProgressBar(context, 0.9),
+                      const SizedBox(height: 26),
+                      buildScreenHeader(
+                        context,
+                        title: 'Report History',
+                        subtitle:
+                            'Review the status of every incident you have already submitted.',
                       ),
                       const SizedBox(height: 24),
-
                       if (reports.isEmpty)
                         Container(
-                          padding: const EdgeInsets.symmetric(vertical: 40),
-                          alignment: Alignment.center,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 40,
+                          ),
+                          decoration: appSoftCardDecoration(),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.assignment_outlined,
-                                size: 60,
-                                color: Colors.grey.shade400,
+                                size: 56,
+                                color: Color(0xFFC8B9AF),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 14),
                               Text(
                                 'No reports found',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Submit a report, it will appear here',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: Colors.grey.shade500,
+                                style: GoogleFonts.inter(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: kAppTitleText,
                                 ),
                               ),
                             ],
                           ),
                         ),
-
                       if (reports.isNotEmpty)
-                        ListView.separated(
-                          itemCount: reports.length,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final report = reports[index];
-                            return _buildReportCard(context, report);
-                          },
+                        ...reports.map(
+                          (report) => Padding(
+                            padding: const EdgeInsets.only(bottom: 14),
+                            child: _buildReportCard(context, report),
+                          ),
                         ),
                     ],
                   ),
@@ -193,32 +157,29 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Widget _buildReportCard(BuildContext context, ReportedIncident report) {
-    final theme = Theme.of(context);
     final statusColor = _getStatusColor(report.incidentResponseStatus);
     final statusTextColor = _getStatusTextColor(report.incidentResponseStatus);
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade200, width: 1),
-      ),
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(22),
         onTap: () => _showDeleteConfirmation(context, report.id.toString()),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+        child: Ink(
+          decoration: appSoftCardDecoration(),
+          padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Text(
                       report.incident.incident,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                      style: GoogleFonts.inter(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: kAppTitleText,
                       ),
                     ),
                   ),
@@ -228,53 +189,38 @@ class _ReportScreenState extends State<ReportScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: statusColor.withOpacity(0.3),
-                        width: 1,
-                      ),
+                      color: statusColor.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
                       report.incidentResponseStatus,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
                         color: statusTextColor,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 16,
-                    color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    formatReadableDate(report.createdAt),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 10),
+              Text(
+                formatReadableDate(report.createdAt),
+                style: GoogleFonts.inter(fontSize: 13, color: kAppMutedText),
               ),
-              const SizedBox(height: 8),
               if (report.description != null && report.description!.isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 8),
-                    Text(
-                      report.description!,
-                      style: theme.textTheme.bodyMedium,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    report.description!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: kAppLabelText,
                     ),
-                  ],
+                  ),
                 ),
             ],
           ),
@@ -286,15 +232,15 @@ class _ReportScreenState extends State<ReportScreen> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'New':
-        return Colors.yellow;
+        return Colors.amber;
       case 'Assigned':
-        return Colors.blue;
+        return const Color(0xFF67A4F8);
       case 'In Progress':
-        return Colors.orange;
+        return const Color(0xFFF59D3D);
       case 'Resolved':
-        return Colors.green;
+        return const Color(0xFF4CAF7D);
       case 'Closed':
-        return Colors.red;
+        return kAppAccent;
       default:
         return Colors.grey;
     }
@@ -303,85 +249,76 @@ class _ReportScreenState extends State<ReportScreen> {
   Color _getStatusTextColor(String status) {
     switch (status) {
       case 'New':
-        return Colors.yellow.shade800;
+        return Colors.amber.shade900;
       case 'Assigned':
-        return Colors.blue.shade800;
+        return const Color(0xFF2F6ABC);
       case 'In Progress':
-        return Colors.orange.shade800;
+        return const Color(0xFF9E5A04);
       case 'Resolved':
-        return Colors.green.shade800;
+        return const Color(0xFF1E6C4A);
       case 'Closed':
-        return Colors.red.shade800;
+        return const Color(0xFF9C3419);
       default:
         return Colors.grey.shade800;
     }
   }
 
   void _showDeleteConfirmation(BuildContext context, String id) {
-    final theme = Theme.of(context);
-
     showDialog(
       context: context,
-      builder:
-          (context) => Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Delete Report',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Delete report',
+                  style: GoogleFonts.inter(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: kAppTitleText,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Are you sure you want to delete this report?',
+                  style: GoogleFonts.inter(color: kAppMutedText, height: 1.5),
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.inter(color: kAppMutedText),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Are you sure you want to delete this report? This action cannot be undone.',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(
-                          'Cancel',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        deleteReport(id);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kAppAccent,
                       ),
-                      const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: () {
-                          deleteReport(id);
-                          Navigator.pop(context);
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.red.shade600,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text('Delete'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      child: const Text('Delete'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
+        );
+      },
     );
   }
 }

@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:drop_down_list/drop_down_list.dart';
 import 'package:drop_down_list/model/selected_list_item.dart';
 import 'package:ereportmo_app/constants.dart';
+import 'package:ereportmo_app/includes/app_fonts.dart';
+import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:ereportmo_app/login.dart';
-import 'package:flutter/material.dart';
-import 'package:ereportmo_app/includes/appbar.dart';
 import 'package:ereportmo_app/municipalities.dart';
-import 'package:drop_down_list/drop_down_list.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class RegisterScreen extends StatefulWidget {
@@ -48,9 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final response = await http.get(
         Uri.parse('$baseApiUrl/locations'),
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: {'Accept': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -85,102 +83,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       isProcessing = true;
     });
-    final name = _nameController.text;
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-    final barangay = _barangayController.text;
-    final municipality = _municipalityController.text;
-
-    if (name.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty ||
-        barangay.isEmpty ||
-        municipality.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please fill in all fields',
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
-      );
-      setState(() {
-        isProcessing = false;
-      });
-      return;
-    }
-
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Passwords do not match',
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
-      );
-      setState(() {
-        isProcessing = false;
-      });
-      return;
-    }
-
-    if (password.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Password must be at least 8 characters long',
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
-      );
-      setState(() {
-        isProcessing = false;
-      });
-      return;
-    }
-
-    if (!email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Invalid email address',
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
-      );
-      setState(() {
-        isProcessing = false;
-      });
-      return;
-    }
-
     final response = await http.post(
       Uri.parse('$baseApiUrl/register'),
       headers: {
@@ -188,506 +90,194 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'Accept': 'application/json',
       },
       body: jsonEncode({
-        'name': name,
-        'email': email,
-        'municipality': municipality,
-        'barangay': barangay,
-        'password': password,
-        'password_confirmation': confirmPassword,
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'municipality': _municipalityController.text,
+        'barangay': _barangayController.text,
+        'password': _passwordController.text,
+        'password_confirmation': _confirmPasswordController.text,
       }),
     );
 
     final Map<String, dynamic> responseMessage = jsonDecode(response.body);
-    String message = responseMessage['message'] ?? 'Registration failed';
+    final String message = responseMessage['message'] ?? 'Registration failed';
+    if (!mounted) return;
 
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
     if (response.statusCode == 201) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message,
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
-      );
-
       _passwordController.clear();
       _confirmPasswordController.clear();
       _emailController.clear();
       _nameController.clear();
       _barangayController.clear();
       _municipalityController.clear();
-
-      Timer(const Duration(seconds: 3), () {
+      Timer(const Duration(seconds: 2), () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       });
-    } else if (response.statusCode == 422) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message,
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
-      );
-      setState(() {
-        isProcessing = false;
-      });
-      return;
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Something went wrong please try again.',
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
-      );
       setState(() {
         isProcessing = false;
       });
-      return;
     }
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _emailController.dispose();
-    _nameController.dispose();
-    _barangayController.dispose();
-    _municipalityController.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: EReportModeAppBar(
-          withBackButton: false,
-          title: 'Register Account',
-        ),
-      ),
+      backgroundColor: kAppCanvas,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: fetchMunicipalities,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(
-              horizontal: screenWidth > 600 ? 100 : 24,
-              vertical: 24,
-            ),
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                widget.title,
-                style: GoogleFonts.inter(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
+            padding: appScreenPadding(context),
+            child: buildScreenPanel(
+              context: context,
+              children: [
+                buildProgressBar(context, 0.55),
+                const SizedBox(height: 28),
+                buildScreenHeader(
+                  context,
+                  title: 'Create your account',
+                  subtitle:
+                      'Enter your details so we can personalize your reporting experience.',
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Get started by creating an account.',
-                style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 36),
-              // Name field
-              Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: Colors.grey.shade200, width: 1),
+                const SizedBox(height: 28),
+                buildSectionLabel('Personal Information'),
+                const SizedBox(height: 14),
+                _buildInputField(
+                  controller: _nameController,
+                  label: 'Full Name',
+                  icon: Icons.person_outline_rounded,
                 ),
-                margin: const EdgeInsets.only(bottom: 24),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Personal Information",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          labelText: 'Full Name',
-                          labelStyle: GoogleFonts.poppins(
-                            color: Colors.grey[600],
-                          ),
-                          prefixIcon: Icon(
-                            Icons.person_outlined,
-                            color: theme.colorScheme.primary,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: theme.colorScheme.primary,
-                              width: 2,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      TextFormField(
-                        controller: _municipalityController,
-                        readOnly: true,
-                        onTap: onMunicipalityTextFieldTap,
-                        decoration: InputDecoration(
-                          labelText: 'Municipality',
-                          labelStyle: GoogleFonts.poppins(
-                            color: Colors.grey[600],
-                          ),
-                          prefixIcon: Icon(
-                            Icons.location_on_outlined,
-                            color: theme.colorScheme.primary,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: theme.colorScheme.primary,
-                              width: 2,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const MunicipalitiesScreen(),
+                const SizedBox(height: 14),
+                _buildInputField(
+                  controller: _municipalityController,
+                  label: 'Municipality',
+                  icon: Icons.location_on_outlined,
+                  readOnly: true,
+                  onTap: onMunicipalityTextFieldTap,
+                  trailing:
+                      _isFetchingMunicipalities
+                          ? SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: Padding(
+                              padding: const EdgeInsets.all(13),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
-                            );
-                          },
-                          child: Text(
-                            'Supported municipalities',
-                            style: GoogleFonts.poppins(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      TextFormField(
-                        controller: _barangayController,
-                        decoration: InputDecoration(
-                          labelText: 'Barangay',
-                          labelStyle: GoogleFonts.poppins(
-                            color: Colors.grey[600],
-                          ),
-                          prefixIcon: Icon(
-                            Icons.location_on_outlined,
-                            color: theme.colorScheme.primary,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: theme.colorScheme.primary,
-                              width: 2,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-                ),
-              ),
-
-              Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: Colors.grey.shade200, width: 1),
-                ),
-                margin: const EdgeInsets.only(bottom: 24),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Account Information",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          labelStyle: GoogleFonts.poppins(
-                            color: Colors.grey[600],
-                          ),
-                          hintText: 'Enter your email',
-                          prefixIcon: Icon(
-                            Icons.email_outlined,
-                            color: theme.colorScheme.primary,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: theme.colorScheme.primary,
-                              width: 2,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: GoogleFonts.poppins(
-                            color: Colors.grey[600],
-                          ),
-                          hintText: 'Enter your password',
-                          prefixIcon: Icon(
-                            Icons.lock_outlined,
-                            color: theme.colorScheme.primary,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: theme.colorScheme.primary,
-                              width: 2,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          labelStyle: GoogleFonts.poppins(
-                            color: Colors.grey[600],
-                          ),
-                          hintText: 'Enter your password again',
-                          prefixIcon: Icon(
-                            Icons.lock_outlined,
-                            color: theme.colorScheme.primary,
-                          ),
-
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: theme.colorScheme.primary,
-                              width: 2,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Register button
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: _handleRegister,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child:
-                      isProcessing
-                          ? const SizedBox(
-                            width: 15,
-                            height: 15,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
                             ),
                           )
-                          : Text(
-                            'Register',
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
+                          : const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: kAppMutedText,
                           ),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              Center(
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text(
-                      "Have an account?",
-                      style: GoogleFonts.poppins(color: Colors.grey[600]),
+                if (_municipalitiesError != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _municipalitiesError!,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.red.shade400,
                     ),
-                    const SizedBox(width: 4),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: theme.colorScheme.primary,
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: Text(
-                        "Login",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.primary,
+                  ),
+                ],
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const MunicipalitiesScreen(),
                         ),
+                      );
+                    },
+                    child: const Text('View supported municipalities'),
+                  ),
+                ),
+                _buildInputField(
+                  controller: _barangayController,
+                  label: 'Barangay',
+                  icon: Icons.map_outlined,
+                ),
+                const SizedBox(height: 24),
+                buildSectionLabel('Account Information'),
+                const SizedBox(height: 14),
+                _buildInputField(
+                  controller: _emailController,
+                  label: 'Email Address',
+                  icon: Icons.alternate_email_rounded,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 14),
+                _buildInputField(
+                  controller: _passwordController,
+                  label: 'Password',
+                  icon: Icons.lock_outline_rounded,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 14),
+                _buildInputField(
+                  controller: _confirmPasswordController,
+                  label: 'Confirm Password',
+                  icon: Icons.verified_user_outlined,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: double.infinity,
+                  height: 58,
+                  child: ElevatedButton(
+                    onPressed: isProcessing ? null : _handleRegister,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kAppAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                  ],
+                    child:
+                        isProcessing
+                            ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.2,
+                                color: Colors.white,
+                              ),
+                            )
+                            : const Text('Next'),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Center(
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account?',
+                        style: GoogleFonts.inter(color: kAppMutedText),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text('Sign in'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -695,50 +285,68 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType? keyboardType,
+    bool readOnly = false,
+    bool obscureText = false,
+    VoidCallback? onTap,
+    Widget? trailing,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      readOnly: readOnly,
+      obscureText: obscureText,
+      onTap: onTap,
+      style: GoogleFonts.inter(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: kAppTitleText,
+      ),
+      decoration: appInputDecoration(
+        context,
+        label: label,
+        icon: icon,
+        trailing: trailing,
+      ),
+    );
+  }
+
   void onMunicipalityTextFieldTap() {
-    // If municipalities are not loaded yet, attempt to fetch again
-    if (_listOfMunicipalities.isEmpty && !_isFetchingMunicipalities) {
-      fetchMunicipalities();
-    }
-
-    // Show a simple error/snackbar if we couldn't load municipalities
-    if (_municipalitiesError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _municipalitiesError!,
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-        ),
-      );
-      return;
-    }
-
+    if (_isFetchingMunicipalities || _listOfMunicipalities.isEmpty) return;
     DropDownState<String>(
       dropDown: DropDown<String>(
-        isDismissible: true,
-        enableMultipleSelection: false, // Only allow single selection
-        bottomSheetTitle: const Text(
-          'Select Municipality',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+        bottomSheetTitle: Text(
+          'Municipalities',
+          style: GoogleFonts.inter(fontWeight: FontWeight.w700),
         ),
-        dropDownBackgroundColor: Colors.white,
-        submitButtonText: 'Save',
-        clearButtonText: 'Clear',
-        data: _listOfMunicipalities.isNotEmpty
-            ? _listOfMunicipalities
-                .map((municipality) => SelectedListItem<String>(data: municipality))
-                .toList()
-            : [SelectedListItem<String>(data: 'No municipalities available')],
+        data:
+            _listOfMunicipalities
+                .map(
+                  (municipality) =>
+                      SelectedListItem<String>(data: municipality),
+                )
+                .toList(),
         onSelected: (selectedItems) {
-          if (selectedItems.isNotEmpty) {
-            // Set the selected item to the text controller
-            setState(() {
-              _municipalityController.text = selectedItems.first.data;
-            });
-          }
+          final selectedMunicipality = selectedItems.first.data;
+          _municipalityController.text = selectedMunicipality;
         },
+        enableMultipleSelection: false,
       ),
     ).showModal(context);
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _emailController.dispose();
+    _nameController.dispose();
+    _barangayController.dispose();
+    _municipalityController.dispose();
+    super.dispose();
   }
 }

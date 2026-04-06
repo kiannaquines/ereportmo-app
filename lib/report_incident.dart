@@ -1,17 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:drop_down_list/drop_down_list.dart';
 import 'package:drop_down_list/model/selected_list_item.dart';
 import 'package:ereportmo_app/constants.dart';
+import 'package:ereportmo_app/includes/app_fonts.dart';
 import 'package:ereportmo_app/models/incident.dart';
-import 'package:flutter/material.dart';
 import 'package:ereportmo_app/includes/appbar.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:ereportmo_app/includes/ereportmo_shared.dart';
-import 'package:location/location.dart';
+import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:location/location.dart';
 
 class ReportIncident extends StatefulWidget {
   const ReportIncident({super.key, required this.title});
@@ -38,7 +40,6 @@ class _ReportIncidentState extends State<ReportIncident> {
 
   void getCurrentLocation() async {
     final location = Location();
-    location.enableBackgroundMode(enable: true);
 
     bool serviceEnabled;
     PermissionStatus permissionGranted;
@@ -74,6 +75,7 @@ class _ReportIncidentState extends State<ReportIncident> {
   void onIncidentTypeTextFieldTap() async {
     if (!_incidentTypesCached) {
       final fetchedIncidentType = await fetchIncidentTypes();
+      if (!mounted) return;
       setState(() {
         _listOfIncidentTypes.clear();
         _listOfIncidentTypes.addAll(fetchedIncidentType);
@@ -210,6 +212,7 @@ class _ReportIncidentState extends State<ReportIncident> {
           responseData['message'] ?? 'Incident report response received.';
 
       if (response.statusCode == 201) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -258,9 +261,11 @@ class _ReportIncidentState extends State<ReportIncident> {
     } catch (e) {
       _showErrorSnackBar("An unexpected error occurred. Please try again.");
     } finally {
-      setState(() {
-        _isProcessing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
     }
   }
 
@@ -269,12 +274,9 @@ class _ReportIncidentState extends State<ReportIncident> {
       SnackBar(
         content: Text(
           message,
-          style: TextStyle(
-            fontFamily: GoogleFonts.openSans().fontFamily,
-            fontSize: 16,
-          ),
+          style: GoogleFonts.openSans(fontSize: 16, color: Colors.white),
         ),
-        backgroundColor: Colors.red.shade600,
+        backgroundColor: kAppAccent,
       ),
     );
   }
@@ -282,11 +284,11 @@ class _ReportIncidentState extends State<ReportIncident> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      backgroundColor: kAppCanvas,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
+        preferredSize: const Size.fromHeight(84),
         child: EReportModeAppBar(
           withBackButton: true,
           title: widget.title,
@@ -294,345 +296,232 @@ class _ReportIncidentState extends State<ReportIncident> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: appScreenPadding(context),
+        child: buildScreenPanel(
+          context: context,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Report Incident',
-                  style: GoogleFonts.inter(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Provide details about the incident you witnessed',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
+            buildProgressBar(context, 0.82),
+            const SizedBox(height: 26),
+            buildScreenHeader(
+              context,
+              title: 'Report Incident',
+              subtitle:
+                  'Provide the details of what happened and attach supporting evidence.',
             ),
             const SizedBox(height: 24),
-
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: Colors.grey.shade200, width: 1),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Incident Details",
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
-                      ),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: appSoftCardDecoration(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Incident Details",
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: kAppTitleText,
                     ),
-                    const SizedBox(height: 20),
+                  ),
+                  const SizedBox(height: 20),
 
-                    TextFormField(
-                      controller: _incidentTypeController,
-                      readOnly: true,
-                      onTap: onIncidentTypeTextFieldTap,
-                      decoration: InputDecoration(
-                        labelText: 'Incident Type',
-                        labelStyle: GoogleFonts.poppins(
-                          color: Colors.grey[600],
-                        ),
-                        hintText: 'Select incident type',
-                        prefixIcon: Icon(
-                          Icons.warning_amber_rounded,
-                          color: theme.colorScheme.primary,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: theme.colorScheme.primary,
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 16,
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade50,
-                      ),
+                  TextFormField(
+                    controller: _incidentTypeController,
+                    readOnly: true,
+                    onTap: onIncidentTypeTextFieldTap,
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: kAppTitleText,
                     ),
-                    const SizedBox(height: 16),
-
-                    TextFormField(
-                      maxLines: 5,
-                      minLines: 3,
-                      controller: _incidentDescriptionController,
-                      decoration: InputDecoration(
-                        labelText: 'Incident Description',
-                        labelStyle: GoogleFonts.poppins(
-                          color: Colors.grey[600],
-                        ),
-                        hintText: 'Describe what happened...',
-                        alignLabelWithHint: true,
-                        prefixIcon: Icon(
-                          Icons.description_outlined,
-                          color: theme.colorScheme.primary,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: theme.colorScheme.primary,
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 16,
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade50,
-                      ),
+                    decoration: appInputDecoration(
+                      context,
+                      label: 'Incident Type',
+                      hintText: 'Select incident type',
+                      icon: Icons.warning_amber_rounded,
                     ),
-                    const SizedBox(height: 20),
+                  ),
+                  const SizedBox(height: 16),
 
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Attach Photo Evidence',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Take a photo or select from gallery',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
+                  TextFormField(
+                    maxLines: 5,
+                    minLines: 3,
+                    controller: _incidentDescriptionController,
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: kAppTitleText,
+                    ),
+                    decoration: appInputDecoration(
+                      context,
+                      label: 'Incident Description',
+                      hintText: 'Describe what happened...',
+                      alignLabelWithHint: true,
+                      icon: Icons.description_outlined,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => _pickImage(ImageSource.camera),
-                                icon: const Icon(Icons.camera_alt_outlined),
-                                label: const Text("Camera"),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  side: BorderSide(
-                                    color: colorScheme.primary.withOpacity(0.5),
-                                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Attach Photo Evidence',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: kAppTitleText,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Take a photo or select from gallery',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: kAppMutedText,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () => _pickImage(ImageSource.camera),
+                              icon: const Icon(Icons.camera_alt_outlined),
+                              label: const Text("Camera"),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                side: BorderSide(
+                                  color: kAppAccent.withValues(alpha: 0.35),
+                                ),
+                                foregroundColor: kAppAccent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed:
-                                    () => _pickImage(ImageSource.gallery),
-                                icon: const Icon(Icons.photo_library_outlined),
-                                label: const Text("Gallery"),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  side: BorderSide(
-                                    color: colorScheme.primary.withOpacity(0.5),
-                                  ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () => _pickImage(ImageSource.gallery),
+                              icon: const Icon(Icons.photo_library_outlined),
+                              label: const Text("Gallery"),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                side: BorderSide(
+                                  color: kAppAccent.withValues(alpha: 0.35),
+                                ),
+                                foregroundColor: kAppAccent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
 
-                        if (_selectedImage != null)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Stack(
-                              children: [
-                                Image.file(
-                                  _selectedImage!,
-                                  height: 180,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.5),
-                                      shape: BoxShape.circle,
+                      if (_selectedImage != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Stack(
+                            children: [
+                              Image.file(
+                                _selectedImage!,
+                                height: 180,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.45),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
                                     ),
-                                    child: IconButton(
-                                      icon: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _selectedImage = null;
-                                        });
-                                      },
-                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedImage = null;
+                                      });
+                                    },
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
 
-                    Text(
-                      'Incident Location',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.primary,
-                      ),
+                  Text(
+                    'Incident Location',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: kAppTitleText,
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _latitudeController,
-                            readOnly: true,
-                            decoration: InputDecoration(
-                              labelText: 'Latitude',
-                              labelStyle: GoogleFonts.poppins(
-                                color: Colors.grey[600],
-                              ),
-                              prefixIcon: Icon(
-                                Icons.location_on_outlined,
-                                color: theme.colorScheme.primary,
-                              ),
-                              filled: true,
-                              fillColor: Colors.grey.shade50,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: theme.colorScheme.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 16,
-                              ),
-                            ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _latitudeController,
+                          readOnly: true,
+                          style: GoogleFonts.inter(color: kAppTitleText),
+                          decoration: appInputDecoration(
+                            context,
+                            label: 'Latitude',
+                            icon: Icons.location_on_outlined,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _longitudeController,
-                            readOnly: true,
-                            decoration: InputDecoration(
-                              labelText: 'Longitude',
-                              labelStyle: GoogleFonts.poppins(
-                                color: Colors.grey[600],
-                              ),
-                              prefixIcon: Icon(
-                                Icons.location_on_outlined,
-                                color: theme.colorScheme.primary,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: theme.colorScheme.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 16,
-                              ),
-                              filled: true,
-                              fillColor: Colors.grey.shade50,
-                            ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _longitudeController,
+                          readOnly: true,
+                          style: GoogleFonts.inter(color: kAppTitleText),
+                          decoration: appInputDecoration(
+                            context,
+                            label: 'Longitude',
+                            icon: Icons.location_on_outlined,
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Location is automatically detected',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey.shade600,
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Location is automatically detected',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: kAppMutedText,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 24),
 
             SizedBox(
               width: double.infinity,
-              height: 55,
+              height: 58,
               child: ElevatedButton(
-                onPressed: _handleReportIncident,
+                onPressed: _isProcessing ? null : _handleReportIncident,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
+                  backgroundColor: kAppAccent,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   elevation: 0,
                 ),
@@ -648,9 +537,10 @@ class _ReportIncidentState extends State<ReportIncident> {
                         )
                         : Text(
                           'Submit Report',
-                          style: theme.textTheme.titleMedium?.copyWith(
+                          style: GoogleFonts.inter(
                             color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
                           ),
                         ),
               ),

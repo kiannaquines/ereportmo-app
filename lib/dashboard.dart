@@ -2,14 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:ereportmo_app/constants.dart';
+import 'package:ereportmo_app/includes/app_fonts.dart';
+import 'package:ereportmo_app/includes/appbar.dart';
+import 'package:ereportmo_app/includes/ereportmo_shared.dart';
+import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:ereportmo_app/login.dart';
 import 'package:ereportmo_app/report.dart';
 import 'package:ereportmo_app/report_incident.dart';
 import 'package:flutter/material.dart';
-import 'package:ereportmo_app/includes/appbar.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:ereportmo_app/includes/ereportmo_shared.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,6 +21,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String? userName;
+
   @override
   void initState() {
     super.initState();
@@ -34,12 +36,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
     return Scaffold(
+      backgroundColor: kAppCanvas,
       appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(50),
+        preferredSize: Size.fromHeight(84),
         child: EReportModeAppBar(
           withBackButton: false,
           title: 'EReportMo',
@@ -47,109 +47,78 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: appScreenPadding(context),
+        child: buildScreenPanel(
+          context: context,
           children: [
-            // Welcome Card
+            buildProgressBar(context, 0.72),
+            const SizedBox(height: 26),
+            buildScreenHeader(
+              context,
+              title: 'Welcome Home',
+              subtitle:
+                  'Track reports, create new incidents, and keep your community updates organized.',
+            ),
+            const SizedBox(height: 24),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: colorScheme.primary.withOpacity(0.3),
-                  width: 1,
-                ),
+                color: kAppAccentSoft,
+                borderRadius: BorderRadius.circular(24),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Welcome back, ${userName ?? ''}',
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
+                    'Hello, ${userName ?? 'Reporter'}',
+                    style: GoogleFonts.inter(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: kAppTitleText,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
-                    'Help keep your community safe by reporting incidents.',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[700],
+                    'Everything you need to report and review incidents is gathered here in one place.',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: kAppLabelText,
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-
-            Text(
-              'Quick Actions',
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
-              ),
+            buildSectionLabel('Quick Actions'),
+            const SizedBox(height: 14),
+            _buildActionTile(
+              context,
+              icon: Icons.add_task_rounded,
+              title: 'Create Report',
+              subtitle: 'Capture details and submit a new incident report.',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            const ReportIncident(title: 'Report Incident'),
+                  ),
+                );
+              },
             ),
-            Text(
-              'Quickly access important features',
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.normal,
-                fontFamily: GoogleFonts.openSans().fontFamily,
-                color: colorScheme.onSecondary.withOpacity(0.7),
-                fontSize: 12,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final cardWidth = MediaQuery.of(context).size.width;
-                final cardHeight = cardWidth * 0.5;
-
-                return Wrap(
-                  spacing: 20,
-                  runSpacing: 20,
-                  children: [
-                    _buildActionCard(
-                      context,
-                      icon: Icons.warning_amber_rounded,
-                      label: 'Report Incident',
-                      description: 'Report any incident in your area',
-                      color: colorScheme.primary,
-                      height: cardHeight,
-                      width: cardWidth,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => const ReportIncident(
-                                  title: 'Report Incident',
-                                ),
-                          ),
-                        );
-                      },
-                    ),
-                    _buildActionCard(
-                      context,
-                      icon: Icons.history_rounded,
-                      label: 'Report History',
-                      description: 'View your reported incidents',
-                      color: colorScheme.secondary,
-                      height: cardHeight,
-                      width: cardWidth,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ReportScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+            const SizedBox(height: 14),
+            _buildActionTile(
+              context,
+              icon: Icons.event_note_rounded,
+              title: 'Report History',
+              subtitle: 'Review statuses and follow your submitted incidents.',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ReportScreen()),
                 );
               },
             ),
@@ -160,68 +129,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildActionCard(
+  Widget _buildActionTile(
     BuildContext context, {
     required IconData icon,
-    required String label,
-    required String description,
-    required Color color,
-    required double width,
-    required double height,
+    required String title,
+    required String subtitle,
     required VoidCallback onTap,
   }) {
-    final theme = Theme.of(context);
-
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: Ink(
+          decoration: appSoftCardDecoration(),
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: kAppAccentSoft,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(icon, color: kAppAccent),
               ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, size: 32, color: color),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: kAppTitleText,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        height: 1.4,
+                        color: kAppMutedText,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  label,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4), // Added smaller spacing
-                Text(
-                  description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    // Changed to bodyMedium
-                    fontWeight: FontWeight.w400,
-                    color: theme.colorScheme.onSurface.withOpacity(
-                      0.7,
-                    ), // Reduced opacity
-                  ),
-                ),
-              ],
-            ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: kAppMutedText,
+              ),
+            ],
           ),
         ),
       ),
@@ -229,123 +193,113 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
-      ),
-      child: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedFontSize: 12,
-        currentIndex: 0,
-        elevation: 0,
-        selectedItemColor: theme.colorScheme.primary,
-        unselectedItemColor: Colors.grey[600],
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history_outlined),
-            activeIcon: Icon(Icons.history_rounded),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.logout_outlined),
-            activeIcon: Icon(Icons.logout_rounded),
-            label: 'Logout',
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
           ),
         ],
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const DashboardScreen()),
-            );
-          } else if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ReportScreen()),
-            );
-          } else if (index == 2) {
-            _showLogoutDialog(context);
-          }
-        },
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          currentIndex: 0,
+          elevation: 0,
+          selectedItemColor: kAppAccent,
+          unselectedItemColor: const Color(0xFFB2AAA2),
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home_rounded),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history_outlined),
+              activeIcon: Icon(Icons.history_rounded),
+              label: 'History',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.logout_outlined),
+              activeIcon: Icon(Icons.logout_rounded),
+              label: 'Logout',
+            ),
+          ],
+          onTap: (index) {
+            if (index == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ReportScreen()),
+              );
+            } else if (index == 2) {
+              _showLogoutDialog(context);
+            }
+          },
+        ),
       ),
     );
   }
 
   void _showLogoutDialog(BuildContext context) {
-    final theme = Theme.of(context);
-
     showDialog(
       context: context,
-      builder:
-          (context) => Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Logout',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Logout',
+                  style: GoogleFonts.inter(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: kAppTitleText,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Are you sure you want to logout from this device?',
+                  style: GoogleFonts.inter(color: kAppMutedText, height: 1.5),
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.inter(color: kAppMutedText),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Are you sure you want to logout?',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(
-                          'Cancel',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          await logOutData();
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text('Confirm'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await logOutData();
+                      },
+                      child: const Text('Confirm'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
+        );
+      },
     );
   }
 
@@ -364,55 +318,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (response.statusCode == 200) {
       await removeLoginData();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message,
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
-      );
-      Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+      Timer(const Duration(seconds: 2), () {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const LoginScreen()),
           (route) => false,
         );
       });
-    } else if (response.statusCode == 401) {
+    } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message,
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Something went wrong please try again.',
-            style: TextStyle(fontFamily: GoogleFonts.openSans().fontFamily),
-          ),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-            },
-          ),
-        ),
+        const SnackBar(content: Text('Something went wrong please try again.')),
       );
     }
   }

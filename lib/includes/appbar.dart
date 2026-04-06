@@ -1,12 +1,14 @@
+import 'package:ereportmo_app/includes/app_fonts.dart';
+import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:flutter/material.dart';
 
-class EReportModeAppBar extends StatefulWidget {
+class EReportModeAppBar extends StatelessWidget {
   const EReportModeAppBar({
     super.key,
     this.title = 'EReportMo',
     this.withBackButton = true,
     this.withActionButtons = false,
-    this.elevation = 1,
+    this.elevation = 0,
   });
 
   final String title;
@@ -15,79 +17,106 @@ class EReportModeAppBar extends StatefulWidget {
   final double elevation;
 
   @override
-  State<EReportModeAppBar> createState() => _EReportModeAppBarState();
-}
-
-class _EReportModeAppBarState extends State<EReportModeAppBar> {
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return AppBar(
-      leading:
-          widget.withBackButton
-              ? IconButton(
-                icon: Container(
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primary.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_back_rounded, size: 20),
+      automaticallyImplyLeading: false,
+      toolbarHeight: 78,
+      backgroundColor: Colors.transparent,
+      foregroundColor: kAppTitleText,
+      elevation: elevation,
+      surfaceTintColor: Colors.transparent,
+      flexibleSpace: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: kAppFieldBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF3A2118).withValues(alpha: 0.05),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
                 ),
-                onPressed: () => Navigator.maybePop(context),
-                tooltip: 'Back',
-              )
-              : null,
-      title: Text(
-        widget.title,
-        style: theme.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-          fontSize: 20,
-          letterSpacing: 0.5,
+              ],
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 10),
+                if (withBackButton)
+                  _AppBarIconButton(
+                    icon: Icons.arrow_back_ios_new_rounded,
+                    onTap: () => Navigator.maybePop(context),
+                    tooltip: 'Back',
+                  )
+                else
+                  const SizedBox(width: 44),
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: kAppTitleText,
+                      ),
+                    ),
+                  ),
+                ),
+                if (withActionButtons)
+                  const Row(
+                    children: [
+                      _AppBarIconButton(
+                        icon: Icons.notifications_none_rounded,
+                        tooltip: 'Notifications',
+                      ),
+                      SizedBox(width: 8),
+                      _AppBarIconButton(
+                        icon: Icons.more_horiz_rounded,
+                        tooltip: 'More',
+                      ),
+                    ],
+                  )
+                else
+                  const SizedBox(width: 44),
+                const SizedBox(width: 10),
+              ],
+            ),
+          ),
         ),
       ),
-      automaticallyImplyLeading: false,
-      centerTitle: true,
-      backgroundColor: colorScheme.primary,
-      foregroundColor: Colors.white,
-      elevation: widget.elevation,
-      shadowColor: Colors.black.withOpacity(0.1),
-      surfaceTintColor: Colors.transparent,
-      actions: [
-        if (widget.withActionButtons) ...[
-          IconButton(
-            icon: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.notifications_outlined, size: 20),
-            ),
-            onPressed: () {},
-            tooltip: 'Notifications',
-          ),
-          IconButton(
-            icon: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.more_vert_rounded, size: 20),
-            ),
-            onPressed: () {},
-            tooltip: 'Menu',
-          ),
-          const SizedBox(width: 8),
-        ],
-      ],
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
+    );
+  }
+}
+
+class _AppBarIconButton extends StatelessWidget {
+  const _AppBarIconButton({required this.icon, this.onTap, this.tooltip});
+
+  final IconData icon;
+  final VoidCallback? onTap;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    final button = Material(
+      color: const Color(0xFFFFF5F0),
+      borderRadius: BorderRadius.circular(15),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        onTap: onTap,
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(icon, size: 20, color: kAppAccent),
+        ),
       ),
     );
+
+    if (tooltip == null) return button;
+    return Tooltip(message: tooltip!, child: button);
   }
 }
