@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:ereportmo_app/constants.dart';
 import 'package:ereportmo_app/includes/app_fonts.dart';
-import 'package:ereportmo_app/includes/appbar.dart';
 import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -76,13 +75,6 @@ class _MunicipalitiesScreenState extends State<MunicipalitiesScreen> {
 
     return Scaffold(
       backgroundColor: kAppCanvas,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(84),
-        child: EReportModeAppBar(
-          withBackButton: true,
-          title: 'Municipalities',
-        ),
-      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _fetchMunicipalities,
@@ -92,22 +84,12 @@ class _MunicipalitiesScreenState extends State<MunicipalitiesScreen> {
             child: buildScreenPanel(
               context: context,
               children: [
-                Text(
-                  'Supported Areas',
-                  style: GoogleFonts.inter(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: kAppTitleText,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Search the municipalities currently available in the reporting system.',
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    height: 1.45,
-                    color: kAppMutedText,
-                  ),
+                buildScreenHeader(
+                  context,
+                  title: 'Supported Areas',
+                  subtitle:
+                      'Search the municipalities currently available in the reporting system.',
+                  showBackButton: true,
                 ),
                 const SizedBox(height: 20),
                 Container(

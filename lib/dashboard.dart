@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:ereportmo_app/constants.dart';
 import 'package:ereportmo_app/includes/app_fonts.dart';
-import 'package:ereportmo_app/includes/appbar.dart';
 import 'package:ereportmo_app/includes/ereportmo_shared.dart';
 import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:ereportmo_app/login.dart';
@@ -38,14 +37,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kAppCanvas,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(84),
-        child: EReportModeAppBar(
-          withBackButton: false,
-          title: 'EReportMo',
-          withActionButtons: true,
-        ),
-      ),
       body: SingleChildScrollView(
         padding: appScreenPadding(context),
         child: buildScreenPanel(

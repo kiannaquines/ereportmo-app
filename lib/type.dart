@@ -1,5 +1,6 @@
+import 'package:ereportmo_app/includes/app_fonts.dart';
+import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:flutter/material.dart';
-import 'package:ereportmo_app/includes/appbar.dart';
 
 class TypeScreen extends StatefulWidget {
   const TypeScreen({super.key, required this.title});
@@ -14,11 +15,34 @@ class _TypeScreenState extends State<TypeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: EReportModeAppBar(withBackButton: true, title: widget.title),
+      backgroundColor: kAppCanvas,
+      body: SafeArea(
+        child: Padding(
+          padding: appScreenPadding(context),
+          child: buildScreenPanel(
+            context: context,
+            children: [
+              buildScreenHeader(
+                context,
+                title: widget.title,
+                subtitle: 'Choose the report type from this screen.',
+                showBackButton: true,
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: Text(
+                  'Type',
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: kAppTitleText,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      body: const Center(child: Text('Type')),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:ereportmo_app/constants.dart';
 import 'package:ereportmo_app/includes/app_fonts.dart';
-import 'package:ereportmo_app/includes/appbar.dart';
 import 'package:ereportmo_app/includes/ereportmo_shared.dart';
 import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:ereportmo_app/includes/utils.dart';
@@ -85,14 +84,6 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kAppCanvas,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(84),
-        child: EReportModeAppBar(
-          withBackButton: true,
-          title: widget.title,
-          withActionButtons: true,
-        ),
-      ),
       body:
           isLoading
               ? const Center(
@@ -106,13 +97,12 @@ class _ReportScreenState extends State<ReportScreen> {
                   child: buildScreenPanel(
                     context: context,
                     children: [
-                      buildProgressBar(context, 0.9),
-                      const SizedBox(height: 26),
                       buildScreenHeader(
                         context,
                         title: 'Report History',
                         subtitle:
                             'Review the status of every incident you have already submitted.',
+                        showBackButton: true,
                       ),
                       const SizedBox(height: 24),
                       if (reports.isEmpty)

@@ -6,7 +6,6 @@ import 'package:drop_down_list/model/selected_list_item.dart';
 import 'package:ereportmo_app/constants.dart';
 import 'package:ereportmo_app/includes/app_fonts.dart';
 import 'package:ereportmo_app/models/incident.dart';
-import 'package:ereportmo_app/includes/appbar.dart';
 import 'package:ereportmo_app/includes/ereportmo_shared.dart';
 import 'package:ereportmo_app/includes/ui_shell.dart';
 import 'package:dio/dio.dart';
@@ -287,26 +286,17 @@ class _ReportIncidentState extends State<ReportIncident> {
 
     return Scaffold(
       backgroundColor: kAppCanvas,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(84),
-        child: EReportModeAppBar(
-          withBackButton: true,
-          title: widget.title,
-          withActionButtons: true,
-        ),
-      ),
       body: SingleChildScrollView(
         padding: appScreenPadding(context),
         child: buildScreenPanel(
           context: context,
           children: [
-            buildProgressBar(context, 0.82),
-            const SizedBox(height: 26),
             buildScreenHeader(
               context,
               title: 'Report Incident',
               subtitle:
                   'Provide the details of what happened and attach supporting evidence.',
+              showBackButton: true,
             ),
             const SizedBox(height: 24),
             Container(
